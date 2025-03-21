@@ -1,0 +1,47 @@
+{
+  "name": "editcodewithai",
+  "version": "0.0.1",
+  "description": "Edit Code With AI",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "scripts": {
+    "test": "vitest run",
+    "build": "tsc",
+    "prepublishOnly": "npm run build",
+    "type-check": "tsc --noEmit"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/vizhub-core/editcodewithai.git"
+  },
+  "keywords": [
+    "AI",
+    "codegen",
+    "vibe",
+    "coding",
+    "LLM",
+    "artificial",
+    "intelligence",
+    "coding"
+  ],
+  "author": "Curran Kelleher",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/vizhub-core/editcodewithai/issues"
+  },
+  "homepage": "https://github.com/vizhub-core/editcodewithai#readme",
+  "dependencies": {
+    "@langchain/core": "^0.3.42",
+    "@langchain/openai": "^0.4.6",
+    "@vizhub/viz-types": "^0.0.1",
+    "llm-code-format": "^0.1.2"
+  },
+  "devDependencies": {
+    "typescript": "^5.3.3",
+    "vitest": "^3.0.9"
+  }
+}

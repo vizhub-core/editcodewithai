@@ -1,8 +1,7 @@
-import { ChatOpenAI, ChatOpenAIFields } from '@langchain/openai';
-import { StringOutputParser } from '@langchain/core/output_parsers';
-import { parseMarkdownFiles, serializeMarkdownFiles } from 'llm-code-format';
-import { Files, File, generateFileId } from 'entities';
-import { diff } from 'ot';
+import { ChatOpenAI, ChatOpenAIFields } from "@langchain/openai";
+import { StringOutputParser } from "@langchain/core/output_parsers";
+import { parseMarkdownFiles, serializeMarkdownFiles } from "llm-code-format";
+import { VizFiles, VizFile, generateVizFileId } from "@vizhub/viz-types";
 
 const debug = false;
 
@@ -11,24 +10,23 @@ const PROMPT_TEMPLATE_VERSION = 1;
 
 // Template pieces
 const TASK = (prompt: string) => `## Your Task\n\n${prompt}`;
-const FILES = (filesContext: string) =>
-  `## Original Files\n\n${filesContext}`;
+const FILES = (filesContext: string) => `## Original Files\n\n${filesContext}`;
 const FORMAT = [
-  '## Formatting Instructions\n\n',
-  'Suggest changes to the original files using this exact format:\n\n',
-  '**fileA.js**\n\n```js\n// Entire updated code for fileA\n```\n\n',
-  '**fileB.js**\n\n```js\n// Entire updated code for fileB\n```\n\n',
-  'Only include the files that need to be updated or created.\n\n',
-  'To suggest changes you MUST include the ENTIRE content of the updated file.\n\n',
+  "## Formatting Instructions\n\n",
+  "Suggest changes to the original files using this exact format:\n\n",
+  "**fileA.js**\n\n```js\n// Entire updated code for fileA\n```\n\n",
+  "**fileB.js**\n\n```js\n// Entire updated code for fileB\n```\n\n",
+  "Only include the files that need to be updated or created.\n\n",
+  "To suggest changes you MUST include the ENTIRE content of the updated file.\n\n",
   'NEVER leave out sections as in "... rest of the code remain the same ...".\n\n',
-  'Refactor large files into smaller files in the same directory.\n\n',
-  'Delete all unused files, but we need to keep `README.md`. ',
-  'Files can be deleted by setting their content to empty, for example:\n\n',
-  '**fileToDelete.js**\n\n```\n```\n\n',
-  'For D3 logic, make sure it remains idempotent (use data joins), ',
-  'and prefer function signatures like `someFunction(selection, options)` ',
-  'where `selection` is a D3 selection and `options` is an object.\n\n',
-].join('');
+  "Refactor large files into smaller files in the same directory.\n\n",
+  "Delete all unused files, but we need to keep `README.md`. ",
+  "Files can be deleted by setting their content to empty, for example:\n\n",
+  "**fileToDelete.js**\n\n```\n```\n\n",
+  "For D3 logic, make sure it remains idempotent (use data joins), ",
+  "and prefer function signatures like `someFunction(selection, options)` ",
+  "where `selection` is a D3 selection and `options` is an object.\n\n",
+].join("");
 
 function assembleFullPrompt({
   filesContext,
@@ -37,16 +35,19 @@ function assembleFullPrompt({
   filesContext: string;
   prompt: string;
 }) {
-  return [TASK(prompt), FILES(filesContext), FORMAT].join('\n\n');
-}
-
-function shouldDeleteFile(file?: File) {
-  return file && file.text.trim() === '';
+  return [TASK(prompt), FILES(filesContext), FORMAT].join("\n\n");
 }
 
 /**
- * For your reference, this function calls the OpenRouter
- * cost endpoint. You can adapt or simplify to your environment.
+ * If the LLM outputs empty text for a file, we interpret this
+ * as a request to delete the file.
+ */
+function shouldDeleteFile(file?: VizFile) {
+  return file && file.text.trim() === "";
+}
+
+/**
+ * Get cost and metadata for a generation from OpenRouter.
  */
 async function getGenerationMetadata({
   apiKey,
@@ -71,13 +72,13 @@ async function getGenerationMetadata({
 
   for (let attempt = 1; attempt <= maxRetries; attempt++) {
     const response = await fetch(url, {
-      method: 'GET',
+      method: "GET",
       headers,
     });
 
     if (response.ok) {
       const data = await response.json();
-      debug && console.log('[getCost] data:', JSON.stringify(data, null, 2));
+      debug && console.log("[getCost] data:", JSON.stringify(data, null, 2));
 
       const upstreamCostInDollars = data.data.total_cost;
       const upstreamCostCents = upstreamCostInDollars * 100;
@@ -110,19 +111,19 @@ async function getGenerationMetadata({
   }
 
   // You theoretically never reach here because of the throw above
-  throw new Error('Failed to get generation metadata.');
+  throw new Error("Failed to get generation metadata.");
 }
 
 export interface PerformAiEditParams {
   prompt: string;
   modelName: string;
-  files: Files;
+  files: VizFiles;
   apiKey: string;
   baseURL: string | undefined; // optional
 }
 
 export interface PerformAiEditResult {
-  changedFiles: Files;
+  changedFiles: VizFiles;
   openRouterGenerationId: string;
   upstreamCostCents: number;
   provider: string;
@@ -151,19 +152,19 @@ export async function performAiEdit({
       name: file.name,
       // Example: truncate large files, etc.
       text: file.text
-        .split('\n')
+        .split("\n")
         .slice(
           0,
-          file.name.endsWith('.csv') || file.name.endsWith('.json') ? 50 : 500
+          file.name.endsWith(".csv") || file.name.endsWith(".json") ? 50 : 500
         )
         .map((line) => line.slice(0, 200))
-        .join('\n'),
+        .join("\n"),
     }))
   );
 
   // 2. Assemble the final prompt
   const fullPrompt = assembleFullPrompt({ filesContext, prompt });
-  debug && console.log('[performAiEdit] fullPrompt:', fullPrompt);
+  debug && console.log("[performAiEdit] fullPrompt:", fullPrompt);
 
   // 3. Invoke the model via LangChain’s ChatOpenAI
   const options: ChatOpenAIFields = {
@@ -180,10 +181,10 @@ export async function performAiEdit({
   // 4. We parse the output to figure out which files changed
   const parser = new StringOutputParser();
   const resultString = await parser.invoke(result);
-  const parsed = parseMarkdownFiles(resultString, 'bold');
+  const parsed = parseMarkdownFiles(resultString, "bold");
 
   // 5. Merge the changes into a new `Files` object
-  let changedFiles: Files = Object.keys(files).reduce((acc, fileId) => {
+  let changedFiles: VizFiles = Object.keys(files).reduce((acc, fileId) => {
     const original = files[fileId];
     const changedFile = parsed.files.find((f) => f.name === original.name);
 
@@ -198,7 +199,7 @@ export async function performAiEdit({
       text: changedFile ? changedFile.text : original.text,
     };
     return acc;
-  }, {} as Files);
+  }, {} as VizFiles);
 
   // Handle newly-created files
   parsed.files.forEach((changedFile) => {
@@ -207,7 +208,7 @@ export async function performAiEdit({
     );
     // If no existing file and not empty => it's a new file
     if (!existingFile && !shouldDeleteFile(changedFile)) {
-      const newFileId = generateFileId();
+      const newFileId = generateVizFileId();
       changedFiles[newFileId] = {
         name: changedFile.name,
         text: changedFile.text,
@@ -219,7 +220,7 @@ export async function performAiEdit({
   //    The openRouterGenerationId is stored in `result.lc_kwargs.id` by LangChain
   const openRouterGenerationId = result.lc_kwargs?.id;
   let upstreamCostCents = 0;
-  let provider = '';
+  let provider = "";
   let inputTokens = 0;
   let outputTokens = 0;
 
@@ -236,7 +237,7 @@ export async function performAiEdit({
 
   return {
     changedFiles,
-    openRouterGenerationId: openRouterGenerationId ?? '',
+    openRouterGenerationId: openRouterGenerationId ?? "",
     upstreamCostCents,
     provider,
     inputTokens,
