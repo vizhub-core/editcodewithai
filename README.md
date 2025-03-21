@@ -5,6 +5,47 @@ Edit Code With AI
 
 The premise of this project is to build and iterate an open source AI code editing system. The core idea is that you can feed this system a set of source code files and high level instructions, and it will return the edited code after some time. It aims to be compatible with many LLMs, and flexible enough to adapt to future models as they come out.
 
+## Installation
+
+```bash
+# Clone the repository
+git clone https://github.com/yourusername/editcodewithai.git
+
+# Navigate to project directory
+cd editcodewithai
+
+# Install dependencies
+npm install
+```
+
+## Usage
+
+```typescript
+import { performAiEdit } from 'editcodewithai';
+
+const result = await performAiEdit({
+  prompt: "Update the code to use async/await",
+  modelName: "openai/gpt-4",
+  files: {
+    // Your files object
+  },
+  apiKey: "your-openrouter-api-key",
+  baseURL: "https://openrouter.ai/api/v1"
+});
+```
+
+The `files` object should be a map of file IDs to file objects containing:
+- `name`: The filename (e.g. "index.js")
+- `text`: The file contents as a string
+
+The function returns:
+- `changedFiles`: Updated files with modifications
+- `openRouterGenerationId`: ID of the generation
+- `upstreamCostCents`: Cost in cents
+- `provider`: The AI provider used
+- `inputTokens`: Number of input tokens
+- `outputTokens`: Number of output tokens
+
 ## Similar open source projects
 
 - **Aider**: An AI pair programming tool that integrates with your terminal to assist in code editing within your local git repository. [https://aider.chat/](https://aider.chat/)
