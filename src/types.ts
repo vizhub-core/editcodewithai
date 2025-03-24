@@ -9,8 +9,7 @@ export interface PerformAiEditParams {
   prompt: string;
   files: VizFiles;
   llmFunction: LlmFunction;
-  apiKey: string;
-  baseURL?: string; // optional
+  apiKey?: string;
 }
 
 export interface PerformAiEditResult {
