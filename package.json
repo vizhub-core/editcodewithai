@@ -12,7 +12,8 @@
     "test": "vitest run",
     "build": "tsc",
     "prepublishOnly": "npm run build",
-    "type-check": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "benchmark": "ts-node src/benchmark.ts"
   },
   "repository": {
     "type": "git",
@@ -39,9 +40,11 @@
     "@langchain/openai": "^0.4.9",
     "@vizhub/viz-types": "^0.0.2",
     "@vizhub/viz-utils": "^0.0.1",
-    "llm-code-format": "^0.1.2"
+    "dotenv": "^16.4.7",
+    "llm-code-format": "^0.2.2"
   },
   "devDependencies": {
+    "ts-node": "^10.9.2",
     "typescript": "^5.8.2",
     "vitest": "^3.0.9"
   }

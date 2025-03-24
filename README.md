@@ -1,5 +1,6 @@
 # editcodewithai
-Edit Code With AI 
+
+Edit Code With AI
 
 ## A Simple Open Source AI Code Editor
 
@@ -21,30 +22,77 @@ npm install
 ## Usage
 
 ```typescript
-import { performAiEdit } from 'editcodewithai';
+import { performAiEdit } from "editcodewithai";
+import { VizFiles } from "@vizhub/viz-types";
 
+// Define your LLM function that will process the prompt
+const myLlmFunction = async (prompt: string) => {
+  // Call your preferred LLM API here
+  // This example assumes using OpenRouter
+  const response = await fetch(
+    "https://openrouter.ai/api/v1/chat/completions",
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${apiKey}`,
+      },
+      body: JSON.stringify({
+        model: "openai/gpt-4",
+        messages: [{ role: "user", content: prompt }],
+      }),
+    }
+  );
+
+  const data = await response.json();
+  return {
+    content: data.choices[0].message.content,
+    generationId: data.id,
+  };
+};
+
+// Your files
+const files: VizFiles = {
+  file1: {
+    name: "index.js",
+    text: "console.log('Hello world');",
+  },
+};
+
+// Perform the AI edit
 const result = await performAiEdit({
   prompt: "Update the code to use async/await",
-  modelName: "openai/gpt-4",
-  files: {
-    // Your files object
-  },
+  files: files,
+  llmFunction: myLlmFunction,
   apiKey: "your-openrouter-api-key",
-  baseURL: "https://openrouter.ai/api/v1"
 });
 ```
 
-The `files` object should be a map of file IDs to file objects containing:
+### Parameters
+
+The `performAiEdit` function accepts the following parameters:
+
+- `prompt`: A string containing instructions for the AI
+- `files`: A `VizFiles` object (map of file IDs to file objects)
+- `llmFunction`: A function that takes a prompt string and returns a Promise with the LLM response
+- `apiKey`: Your OpenRouter API key for retrieving cost metadata
+
+Each file in the `files` object should contain:
+
 - `name`: The filename (e.g. "index.js")
 - `text`: The file contents as a string
 
-The function returns:
+### Return Value
+
+The function returns an object with:
+
 - `changedFiles`: Updated files with modifications
 - `openRouterGenerationId`: ID of the generation
 - `upstreamCostCents`: Cost in cents
 - `provider`: The AI provider used
 - `inputTokens`: Number of input tokens
 - `outputTokens`: Number of output tokens
+- `promptTemplateVersion`: Version of the prompt template used
 
 ## Similar open source projects
 

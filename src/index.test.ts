@@ -11,7 +11,7 @@ const mockLlmFunction: LlmFunction = vi.fn().mockResolvedValue({
 console.log('updated');
 \`\`\`
 `,
-  generationId: "test-generation-id"
+  generationId: "test-generation-id",
 });
 
 // Mock the fetch function for cost metadata
@@ -42,7 +42,6 @@ describe("performAiEdit", () => {
     files: mockFiles,
     llmFunction: mockLlmFunction,
     apiKey: "test-key",
-    baseURL: "https://test.com",
   };
 
   beforeEach(() => {
@@ -74,14 +73,14 @@ describe("performAiEdit", () => {
 
 \`\`\`
 `,
-      generationId: "test-generation-id"
+      generationId: "test-generation-id",
     });
-    
+
     const result = await performAiEdit({
       ...defaultParams,
-      llmFunction: mockDeleteLlmFunction
+      llmFunction: mockDeleteLlmFunction,
     });
-    
+
     expect(Object.keys(result.changedFiles)).toHaveLength(0);
   });
 
@@ -94,14 +93,14 @@ describe("performAiEdit", () => {
 console.log('new file');
 \`\`\`
 `,
-      generationId: "test-generation-id"
+      generationId: "test-generation-id",
     });
-    
+
     const result = await performAiEdit({
       ...defaultParams,
-      llmFunction: mockCreateLlmFunction
+      llmFunction: mockCreateLlmFunction,
     });
-    
+
     const newFile = Object.values(result.changedFiles).find(
       (f) => f.name === "new-file.js"
     );
