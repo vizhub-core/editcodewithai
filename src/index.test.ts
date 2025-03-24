@@ -1,23 +1,18 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { performAiEdit } from "./index";
 import { VizFiles } from "@vizhub/viz-types";
+import { LlmFunction } from "./types";
 
-import { ChatOpenAI } from "@langchain/openai";
-
-// Mock the ChatOpenAI class
-vi.mock("@langchain/openai", () => ({
-  ChatOpenAI: vi.fn().mockImplementation(() => ({
-    invoke: vi.fn().mockResolvedValue({
-      lc_kwargs: { id: "test-generation-id" },
-      content: `**test.js**
+// Mock LLM function
+const mockLlmFunction: LlmFunction = vi.fn().mockResolvedValue({
+  content: `**test.js**
 
 \`\`\`js
 console.log('updated');
 \`\`\`
 `,
-    }),
-  })),
-}));
+  generationId: "test-generation-id"
+});
 
 // Mock the fetch function for cost metadata
 const mockFetch = vi.fn().mockResolvedValue({
@@ -44,8 +39,8 @@ describe("performAiEdit", () => {
 
   const defaultParams = {
     prompt: "Update the code",
-    modelName: "test-model",
     files: mockFiles,
+    llmFunction: mockLlmFunction,
     apiKey: "test-key",
     baseURL: "https://test.com",
   };
@@ -71,35 +66,42 @@ describe("performAiEdit", () => {
   });
 
   it("should handle file deletion when empty content is returned", async () => {
-    vi.mocked(ChatOpenAI).mockImplementationOnce(() => ({
-      invoke: vi.fn().mockResolvedValue({
-        lc_kwargs: { id: "test-generation-id" },
-        content: `**test.js**
+    // Mock LLM function to return empty content for a file
+    const mockDeleteLlmFunction: LlmFunction = vi.fn().mockResolvedValue({
+      content: `**test.js**
 
-\`\`\`
+\`\`\`js
+
 \`\`\`
 `,
-      }),
-    }));
-
-    const result = await performAiEdit(defaultParams);
+      generationId: "test-generation-id"
+    });
+    
+    const result = await performAiEdit({
+      ...defaultParams,
+      llmFunction: mockDeleteLlmFunction
+    });
+    
     expect(Object.keys(result.changedFiles)).toHaveLength(0);
   });
 
   it("should handle new file creation", async () => {
-    vi.mocked(ChatOpenAI).mockImplementationOnce(() => ({
-      invoke: vi.fn().mockResolvedValue({
-        lc_kwargs: { id: "test-generation-id" },
-        content: `**new-file.js**
+    // Mock LLM function to return a new file
+    const mockCreateLlmFunction: LlmFunction = vi.fn().mockResolvedValue({
+      content: `**new-file.js**
 
 \`\`\`js
 console.log('new file');
 \`\`\`
 `,
-      }),
-    }));
-
-    const result = await performAiEdit(defaultParams);
+      generationId: "test-generation-id"
+    });
+    
+    const result = await performAiEdit({
+      ...defaultParams,
+      llmFunction: mockCreateLlmFunction
+    });
+    
     const newFile = Object.values(result.changedFiles).find(
       (f) => f.name === "new-file.js"
     );

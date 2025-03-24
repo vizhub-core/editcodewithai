@@ -1,0 +1,154 @@
+import { describe, it, expect } from "vitest";
+import {
+  shouldDeleteFile,
+  prepareFilesForPrompt,
+  mergeFileChanges,
+} from "./fileUtils";
+import { VizFiles } from "@vizhub/viz-types";
+
+describe("fileUtils", () => {
+  describe("shouldDeleteFile", () => {
+    it("should return true for empty file content", () => {
+      expect(shouldDeleteFile({ name: "test.js", text: "" })).toBe(true);
+      expect(shouldDeleteFile({ name: "test.js", text: "  " })).toBe(true);
+      expect(shouldDeleteFile({ name: "test.js", text: "\n" })).toBe(true);
+    });
+
+    it("should return false for non-empty file content", () => {
+      expect(
+        shouldDeleteFile({ name: "test.js", text: "console.log('hi');" })
+      ).toBe(false);
+    });
+
+    it("should return false for undefined file", () => {
+      expect(shouldDeleteFile(undefined)).toBe(false);
+    });
+  });
+
+  describe("prepareFilesForPrompt", () => {
+    it("should truncate large files", () => {
+      const files: VizFiles = {
+        file1: {
+          name: "large.js",
+          text: Array(1000).fill("console.log('line');").join("\n"),
+        },
+      };
+
+      const result = prepareFilesForPrompt(files);
+      expect(result[0].name).toBe("large.js");
+      expect(result[0].text.split("\n").length).toBe(500); // Truncated to 500 lines
+    });
+
+    it("should truncate CSV and JSON files more aggressively", () => {
+      const files: VizFiles = {
+        file1: {
+          name: "data.csv",
+          text: Array(100).fill("a,b,c").join("\n"),
+        },
+        file2: {
+          name: "data.json",
+          text: Array(100).fill('{"key": "value"}').join("\n"),
+        },
+      };
+
+      const result = prepareFilesForPrompt(files);
+      const csvFile = result.find((f) => f.name === "data.csv");
+      const jsonFile = result.find((f) => f.name === "data.json");
+
+      expect(csvFile?.text.split("\n").length).toBe(50); // Truncated to 50 lines
+      expect(jsonFile?.text.split("\n").length).toBe(50); // Truncated to 50 lines
+    });
+
+    it("should truncate long lines", () => {
+      const files: VizFiles = {
+        file1: {
+          name: "longline.js",
+          text: "console.log('" + "x".repeat(500) + "');",
+        },
+      };
+
+      const result = prepareFilesForPrompt(files);
+      expect(result[0].text.length).toBeLessThan(201); // Truncated to 200 chars
+    });
+  });
+
+  describe("mergeFileChanges", () => {
+    it("should keep unchanged files", () => {
+      const originalFiles: VizFiles = {
+        file1: { name: "unchanged.js", text: "console.log('original');" },
+      };
+      const parsedFiles: { name: string; text: string }[] = [];
+
+      const result = mergeFileChanges(originalFiles, parsedFiles);
+      expect(result).toEqual(originalFiles);
+    });
+
+    it("should update changed files", () => {
+      const originalFiles: VizFiles = {
+        file1: { name: "changed.js", text: "console.log('original');" },
+      };
+      const parsedFiles = [
+        { name: "changed.js", text: "console.log('updated');" },
+      ];
+
+      const result = mergeFileChanges(originalFiles, parsedFiles);
+      expect(result.file1.text).toBe("console.log('updated');");
+    });
+
+    it("should delete files with empty content", () => {
+      const originalFiles: VizFiles = {
+        file1: { name: "keep.js", text: "console.log('keep');" },
+        file2: { name: "delete.js", text: "console.log('delete');" },
+      };
+      const parsedFiles = [{ name: "delete.js", text: "" }];
+
+      const result = mergeFileChanges(originalFiles, parsedFiles);
+      expect(Object.keys(result)).toHaveLength(1);
+      expect(result.file1).toBeDefined();
+      expect(result.file2).toBeUndefined();
+    });
+
+    it("should add new files", () => {
+      const originalFiles: VizFiles = {
+        file1: { name: "existing.js", text: "console.log('existing');" },
+      };
+      const parsedFiles = [{ name: "new.js", text: "console.log('new');" }];
+
+      const result = mergeFileChanges(originalFiles, parsedFiles);
+      expect(Object.keys(result)).toHaveLength(2);
+
+      const newFile = Object.values(result).find((f) => f.name === "new.js");
+      expect(newFile).toBeDefined();
+      expect(newFile?.text).toBe("console.log('new');");
+    });
+
+    it("should handle multiple operations at once", () => {
+      const originalFiles: VizFiles = {
+        file1: { name: "keep.js", text: "console.log('keep');" },
+        file2: { name: "update.js", text: "console.log('original');" },
+        file3: { name: "delete.js", text: "console.log('delete');" },
+      };
+      const parsedFiles = [
+        { name: "update.js", text: "console.log('updated');" },
+        { name: "delete.js", text: "" },
+        { name: "new.js", text: "console.log('new');" },
+      ];
+
+      const result = mergeFileChanges(originalFiles, parsedFiles);
+
+      // Check kept file
+      expect(result.file1.text).toBe("console.log('keep');");
+
+      // Check updated file
+      expect(result.file2.text).toBe("console.log('updated');");
+
+      // Check deleted file
+      expect(result.file3).toBeUndefined();
+
+      // Check new file
+      const newFile = Object.values(result).find((f) => f.name === "new.js");
+      expect(newFile).toBeDefined();
+      expect(newFile?.text).toBe("console.log('new');");
+    });
+  });
+});
