@@ -1,3 +1,7 @@
+Below is a single-file example that runs the 5 challenges against 5 different models – using placeholder model names (gpt3, gpt4, gpt5, deepseek, and qwen32). Each challenge can contain multiple files and placeholders (// TODO), and we invoke your performAiEdit function to fill in those placeholders. Then we execute each challenge with Node in a child process, interpret exit code 0 as “pass” and anything else as “fail,” and finally write out a CSV with columns for challenge, model, passFail, exitCode.
+
+You can adapt the placeholders (gpt3, etc.) to actual model identifiers in your environment if needed.
+
 /**********************************************************************
  * benchmark.ts
  * --------------------------------------------------------------------
@@ -5,12 +9,11 @@
  * a simple unit test. The code calls process.exit(0) on success or
  * process.exit(1) on failure.
  *
- * The script then:
- * 1) Calls the AI to implement the TODOs.
- * 2) Writes the generated code to disk in separate folders.
- * 3) Executes each challenge with child_process.
- * 4) Interprets exit code 0 as "pass" and non-0 as "fail."
- * 5) Writes pass/fail results to "results.csv."
+ * Runs all challenges on 5 different models:
+ *    ["gpt3", "gpt4", "gpt5", "deepseek", "qwen32"]
+ *
+ * Writes final results to "results.csv" with columns:
+ *    challenge, model, passFail, exitCode
  **********************************************************************/
 import { VizFiles } from "@vizhub/viz-types";
 import { performAiEdit } from "./index"; // Your AI editing pipeline
@@ -22,18 +25,25 @@ import { spawnSync } from "child_process";
 import fs from "fs";
 import path from "path";
 
-// 1) Define the LLM function builder for your OpenRouter or other endpoint
+// 1) Define the LLM function builder for your environment.
+//    We'll keep it general, using the "model" string as a placeholder.
 function createOpenRouterLlmFunction(model: string, apiKey: string, cache?: LocalFileCache): LlmFunction {
   return async (prompt: string) => {
+    // For demonstration, we're using ChatOpenAI from 'langchain', but the model param is a placeholder
     const chatModel = new ChatOpenAI(<ChatOpenAIFields>{
-      modelName: model,
+      modelName: model, // e.g. "gpt3", "gpt4" – placeholder
       configuration: { apiKey, baseURL: "https://openrouter.ai/api/v1" },
       streaming: false,
       cache,
     });
+
+    // Invoke the model
     const result = await chatModel.invoke(prompt);
+
+    // Parse to string
     const parser = new StringOutputParser();
     const resultString = await parser.invoke(result);
+
     return { content: resultString, generationId: result.lc_kwargs.id };
   };
 }
@@ -131,7 +141,6 @@ export function square(x) {
   // TODO
 }
       `,
-      },
     },
   },
   {
@@ -199,10 +208,11 @@ export function reverseString(str) {
 ];
 
 /**
- * Helper: Writes the files for a given challenge into a folder named after challenge.name
+ * Helper: Writes the files for a given challenge into a folder named after challenge.name + model
+ * e.g. "challenges/add/gpt4" to keep them separate per model.
  */
-function writeChallengeFiles(challengeName: string, changedFiles: VizFiles) {
-  const challengeDir = path.join("challenges", challengeName);
+function writeChallengeFiles(challengeName: string, model: string, changedFiles: VizFiles) {
+  const challengeDir = path.join("challenges", challengeName, model);
 
   if (!fs.existsSync(challengeDir)) {
     fs.mkdirSync(challengeDir, { recursive: true });
@@ -229,15 +239,16 @@ function runNodeTest(challengeDir: string) {
 
   // You can log or store stdout/stderr if you want more details
   console.log(`--- Running test in ${challengeDir} ---`);
-  console.log("stdout:", stdout.trim());
-  console.log("stderr:", stderr.trim());
+  console.log("stdout:\n", stdout.trim());
+  console.log("stderr:\n", stderr.trim());
   console.log("exit code:", status, "\n");
 
-  return status ?? 1; // If undefined, treat as fail
+  // If status is null, consider that a failure (process didn't run or crashed).
+  return status ?? 1;
 }
 
 /**
- * Main function: runs all 5 challenges, calls the AI to fill them in,
+ * Main function: runs the 5 challenges on 5 different models, calls the AI to fill them in,
  * executes each test, and writes pass/fail results to CSV.
  */
 async function runAllChallenges() {
@@ -253,42 +264,48 @@ async function runAllChallenges() {
   }
   const cache = await LocalFileCache.create(cacheDirBase);
 
-  // We can run a single model or multiple. Here, just pick one:
-  const model = "anthropic/claude-3.5-sonnet";
-  const llmFunction = createOpenRouterLlmFunction(model, apiKey, cache);
+  // 5 placeholder models
+  const models = ["gpt3", "gpt4", "gpt5", "deepseek", "qwen32"];
 
-  // We'll store results in an array of {challengeName, passFail, exitCode}
-  const results: Array<{ challenge: string; passFail: string; exitCode: number }> = [];
+  // We'll store results in an array of {challenge, model, passFail, exitCode}
+  const results: Array<{ challenge: string; model: string; passFail: string; exitCode: number }> = [];
 
-  for (const challenge of challenges) {
-    console.log(`\n=== Challenge: ${challenge.name} ===`);
+  // Outer loop: each model
+  for (const model of models) {
+    // Create the LLM function for this model
+    const llmFunction = createOpenRouterLlmFunction(model, apiKey, cache);
 
-    // 1) Ask AI to fill out the placeholder TODOs
-    const aiResult = await performAiEdit({
-      prompt: challenge.prompt,
-      files: challenge.files,
-      llmFunction,
-    });
+    // Inner loop: each challenge
+    for (const challenge of challenges) {
+      console.log(`\n=== Challenge: ${challenge.name} | Model: ${model} ===`);
 
-    // 2) Write returned files to disk
-    const challengeDir = writeChallengeFiles(challenge.name, aiResult.changedFiles);
+      // 1) Ask AI to fill out the placeholder TODOs
+      const aiResult = await performAiEdit({
+        prompt: challenge.prompt,
+        files: challenge.files,
+        llmFunction,
+      });
 
-    // 3) Run index.js in a child process
-    const exitCode = runNodeTest(challengeDir);
-    const passFail = exitCode === 0 ? "pass" : "fail";
+      // 2) Write returned files to disk in e.g. "challenges/add/gpt3"
+      const challengeDir = writeChallengeFiles(challenge.name, model, aiResult.changedFiles);
 
-    // 4) Record result
-    results.push({ challenge: challenge.name, passFail, exitCode });
+      // 3) Run index.js in a child process
+      const exitCode = runNodeTest(challengeDir);
+      const passFail = exitCode === 0 ? "pass" : "fail";
+
+      // 4) Record the result
+      results.push({ challenge: challenge.name, model, passFail, exitCode });
+    }
   }
 
   // 5) Write results to CSV
-  let csv = "challenge,passFail,exitCode\n";
+  let csv = "challenge,model,passFail,exitCode\n";
   for (const r of results) {
-    csv += `${r.challenge},${r.passFail},${r.exitCode}\n`;
+    csv += `${r.challenge},${r.model},${r.passFail},${r.exitCode}\n`;
   }
   fs.writeFileSync("results.csv", csv, "utf-8");
 
-  console.log("\nAll challenges completed. See 'results.csv' for summary.");
+  console.log("\nAll challenges completed. See 'results.csv' for summary.\n");
   console.log(csv);
 }
 
@@ -299,3 +316,47 @@ if (require.main === module) {
     process.exit(1);
   });
 }
+
+How It Works
+
+1. Challenges
+
+Each of the 5 has index.js (which runs a unit test and calls process.exit(...)) plus another file, functions.js, containing // TODO placeholders.
+
+
+
+2. Models
+
+A simple array: ["gpt3", "gpt4", "gpt5", "deepseek", "qwen32"].
+
+For each model, we build an LLM function with createOpenRouterLlmFunction(...).
+
+For each challenge, we call performAiEdit to let that model fill in the placeholders.
+
+
+
+3. Writing Files
+
+We save them in challenges/<challengeName>/<model>, e.g. challenges/add/gpt3/index.js.
+
+
+
+4. Running the Test
+
+We then invoke node index.js from that folder using spawnSync.
+
+The exit code is 0 if the test passes, 1 (or anything else) if it fails.
+
+
+
+5. Results
+
+We record challenge, model, passFail, and exitCode in an array.
+
+Finally, we generate a results.csv file.
+
+
+
+
+This allows you to run all 5 challenges against 5 different “placeholder” models, producing a single CSV with 25 test results.
+
