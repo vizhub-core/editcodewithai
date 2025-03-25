@@ -1,6 +1,3 @@
-Below is a single-file example that runs the 5 challenges against 5 different models – using placeholder model names (gpt3, gpt4, gpt5, deepseek, and qwen32). Each challenge can contain multiple files and placeholders (// TODO), and we invoke your performAiEdit function to fill in those placeholders. Then we execute each challenge with Node in a child process, interpret exit code 0 as “pass” and anything else as “fail,” and finally write out a CSV with columns for challenge, model, passFail, exitCode.
-
-You can adapt the placeholders (gpt3, etc.) to actual model identifiers in your environment if needed.
 
 /**********************************************************************
  * benchmark.ts
@@ -316,47 +313,3 @@ if (require.main === module) {
     process.exit(1);
   });
 }
-
-How It Works
-
-1. Challenges
-
-Each of the 5 has index.js (which runs a unit test and calls process.exit(...)) plus another file, functions.js, containing // TODO placeholders.
-
-
-
-2. Models
-
-A simple array: ["gpt3", "gpt4", "gpt5", "deepseek", "qwen32"].
-
-For each model, we build an LLM function with createOpenRouterLlmFunction(...).
-
-For each challenge, we call performAiEdit to let that model fill in the placeholders.
-
-
-
-3. Writing Files
-
-We save them in challenges/<challengeName>/<model>, e.g. challenges/add/gpt3/index.js.
-
-
-
-4. Running the Test
-
-We then invoke node index.js from that folder using spawnSync.
-
-The exit code is 0 if the test passes, 1 (or anything else) if it fails.
-
-
-
-5. Results
-
-We record challenge, model, passFail, and exitCode in an array.
-
-Finally, we generate a results.csv file.
-
-
-
-
-This allows you to run all 5 challenges against 5 different “placeholder” models, producing a single CSV with 25 test results.
-
