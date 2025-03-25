@@ -1,0 +1,18 @@
+export const models = [
+  "anthropic/claude-3.7-sonnet",
+  "anthropic/claude-3.7-sonnet:thinking",
+  "google/gemini-2.0-flash-001",
+  "anthropic/claude-3.5-sonnet",
+  "deepseek/deepseek-r1",
+  "openai/o3-mini-high",
+  "openai/o3-mini",
+  "deepseek/deepseek-chat",
+  "qwen/qwen-2.5-72b-instruct",
+  "qwen/qwq-32b",
+  "anthropic/claude-3.5-haiku",
+  "qwen/qwen-2.5-7b-instruct",
+  "amazon/nova-micro-v1",
+  "meta-llama/llama-3.1-8b-instruct",
+  "meta-llama/llama-3.2-3b-instruct",
+  "meta-llama/llama-3.2-1b-instruct",
+];

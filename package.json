@@ -13,7 +13,7 @@
     "build": "tsc",
     "prepublishOnly": "npm run build",
     "typecheck": "tsc --noEmit",
-    "benchmark": "ts-node src/benchmark.ts"
+    "benchmark": "ts-node src/benchmarks/index.ts"
   },
   "repository": {
     "type": "git",

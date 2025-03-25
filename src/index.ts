@@ -63,5 +63,6 @@ export async function performAiEdit({
     inputTokens,
     outputTokens,
     promptTemplateVersion: PROMPT_TEMPLATE_VERSION,
+    rawResponse: resultString, // Include the raw response
   };
 }
