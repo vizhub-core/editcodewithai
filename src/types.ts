@@ -20,4 +20,5 @@ export interface PerformAiEditResult {
   inputTokens: number;
   outputTokens: number;
   promptTemplateVersion: number;
+  rawResponse: string; // Raw LLM response
 }
