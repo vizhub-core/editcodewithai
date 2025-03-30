@@ -8,12 +8,17 @@
     "dist",
     "README.md"
   ],
+  "bin": {
+    "editcode": "./dist/cli.js"
+  },
   "scripts": {
-    "test": "vitest run",
-    "build": "tsc",
+    "test": "npm run build && vitest run",
+    "build": "tsc && chmod +x dist/cli.js",
     "prepublishOnly": "npm run build",
     "typecheck": "tsc --noEmit",
-    "benchmark": "ts-node src/benchmarks/index.ts"
+    "benchmark": "ts-node src/benchmarks/index.ts",
+    "cli:build": "npm run build",
+    "cli:dev": "ts-node src/cli.ts"
   },
   "repository": {
     "type": "git",
@@ -40,7 +45,9 @@
     "@langchain/openai": "^0.4.9",
     "@vizhub/viz-types": "^0.0.2",
     "@vizhub/viz-utils": "^0.0.1",
+    "commander": "^11.0.0",
     "dotenv": "^16.4.7",
+    "ignore": "^5.3.2",
     "llm-code-format": "^0.2.2"
   },
   "devDependencies": {
