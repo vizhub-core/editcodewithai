@@ -2,3 +2,10 @@ node_modules
 .aider*
 node_modules
 dist
+.env
+benchmarks/results.csv
+benchmarks/results/*.csv
+benchmarks/cache/**
+benchmarks/challenges/**/*
+benchmarks/visualizations/**/*
+.DS_Store

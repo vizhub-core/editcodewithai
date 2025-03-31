@@ -12,7 +12,10 @@
     "test": "vitest run",
     "build": "tsc",
     "prepublishOnly": "npm run build",
-    "type-check": "tsc --noEmit"
+    "type-check": "tsc --noEmit",
+    "benchmark": "ts-node src/benchmarks/cli.ts run",
+    "grade": "ts-node src/benchmarks/cli.ts grade",
+    "benchmark:help": "ts-node src/benchmarks/cli.ts help"
   },
   "repository": {
     "type": "git",
@@ -35,11 +38,14 @@
   },
   "homepage": "https://github.com/vizhub-core/editcodewithai#readme",
   "dependencies": {
-    "@langchain/core": "^0.3.43",
-    "@langchain/openai": "^0.4.9",
+    "@langchain/core": "^0.1.63",
+    "@langchain/openai": "^0.0.14",
     "@vizhub/viz-types": "^0.0.2",
     "@vizhub/viz-utils": "^0.0.1",
-    "llm-code-format": "^0.1.2"
+    "dotenv": "^16.4.5",
+    "langchain": "^0.1.28",
+    "llm-code-format": "^0.1.2",
+    "puppeteer": "^19.11.1"
   },
   "devDependencies": {
     "typescript": "^5.8.2",
