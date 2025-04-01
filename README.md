@@ -19,7 +19,35 @@ cd editcodewithai
 npm install
 ```
 
-## Usage
+## CLI Usage
+
+The CLI tool allows you to edit code files using AI. You'll need an OpenRouter API key set in your environment variables.
+
+```bash
+# Set your OpenRouter API key
+export OPENROUTER_API_KEY=your_api_key_here
+
+# Basic usage
+editcode --prompt "your instruction here"
+
+# Specify a different directory (default is current directory)
+editcode --prompt "your instruction" --dir ./path/to/code
+
+# Use a different model (default is anthropic/claude-3.7-sonnet)
+editcode --prompt "your instruction" --model openai/gpt-4
+
+# Preview changes without writing them
+editcode --prompt "your instruction" --dry-run
+```
+
+### Options
+
+- `-p, --prompt <prompt>` (required): The instruction for editing the code
+- `-d, --dir <directory>`: Directory to process (defaults to current directory)
+- `--model <model>`: OpenRouter model to use (defaults to anthropic/claude-3.7-sonnet)
+- `--dry-run`: Show changes without writing them
+
+## Library Usage
 
 ```typescript
 import { performAiEdit } from "editcodewithai";
