@@ -4,8 +4,8 @@ This project contains a simple function to reverse a string.
 
 ## Files
 
-- `functions.mjs`: Contains the `reverseString` function.
-- `index.mjs`: Contains the test for the `reverseString` function.
+- `index.mjs`: The main file to test the `reverseString` function.
+- `functions.mjs`: The file containing the `reverseString` function.
 
 ## Usage
 

@@ -1,5 +1,3 @@
-I'll solve this task by implementing the 'square' function in functions.mjs:
-
 **functions.mjs**
 
 ```js
@@ -8,9 +6,10 @@ export function square(x) {
 }
 ```
 
-The implementation is straightforward:
-- Take an input number `x`
-- Return `x * x`, which squares the input number
-- This matches the test case in `index.mjs` which expects `square(5)` to return `25`
+This implementation simply takes the input `x` and multiplies it by itself to return the square of the number. It matches the requirements of the test case in `index.mjs`, which checks that `square(5)` returns `25`.
 
-No changes are needed to `index.mjs`. The existing code will now run successfully, testing the square function and logging "Square test passed".
+The function is:
+- Exported so it can be imported in `index.mjs`
+- Takes a single parameter `x`
+- Returns `x * x`, which squares the input number
+- Concise and directly solves the problem

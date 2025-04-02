@@ -1,7 +1,7 @@
 **functions.mjs**
 
 ```js
-// Entire updated code for functions.mjs
+// Implementation of the reverseString function
 export function reverseString(str) {
   return str.split('').reverse().join('');
 }
@@ -13,11 +13,11 @@ export function reverseString(str) {
 import { reverseString } from "./functions.mjs";
 
 const input = "OpenAI";
-const expected = "IAnepO";
+const expected = "IAnepO"; // Corrected expected output
 
 const result = reverseString(input);
 if (result !== expected) {
-  console.error("Test failed: expected", expected, "but got", result);
+  console.error(`Test failed: expected '${expected}', but got '${result}'`);
   process.exit(1);
 }
 console.log("reverseString test passed");
@@ -33,8 +33,8 @@ This project contains a simple function to reverse a string.
 
 ## Files
 
-- `functions.mjs`: Contains the `reverseString` function.
-- `index.mjs`: Contains the test for the `reverseString` function.
+- `index.mjs`: The main file to test the `reverseString` function.
+- `functions.mjs`: The file containing the `reverseString` function.
 
 ## Usage
 
@@ -44,5 +44,7 @@ To run the test, simply execute the `index.mjs` file.
 node index.mjs
 ```
 
-If the test passes, it will print "reverseString test passed". If it fails, it will print an error message.
+If the test passes, you will see "reverseString test passed". Otherwise, an error message will be printed.
 ```
+
+**Note:** The `README.md` file is kept as per the instructions. If there are no other files, it's sufficient to keep it empty as per the instructions.

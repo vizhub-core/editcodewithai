@@ -10,11 +10,15 @@ import { LocalFileCache } from "langchain/cache/file_system";
  * @param cache Optional local file cache to avoid duplicate requests
  * @returns A function that can be used with performAiEdit
  */
-export function createOpenRouterLlmFunction(model: string, apiKey: string, cache?: LocalFileCache): LlmFunction {
+export function createOpenRouterLlmFunction(
+  model: string,
+  apiKey: string,
+  cache?: LocalFileCache
+): LlmFunction {
   return async (prompt: string) => {
     // Create OpenAI chat model with OpenRouter configuration
     const chatModel = new ChatOpenAI(<ChatOpenAIFields>{
-      modelName: model, 
+      modelName: model,
       configuration: { apiKey, baseURL: "https://openrouter.ai/api/v1" },
       streaming: false,
       cache,
@@ -27,6 +31,9 @@ export function createOpenRouterLlmFunction(model: string, apiKey: string, cache
     const parser = new StringOutputParser();
     const resultString = await parser.invoke(result);
 
-    return { content: resultString, generationId: result.lc_kwargs.id };
+    // Ensure lc_kwargs and id exist before accessing
+    const generationId = result?.lc_kwargs?.id;
+
+    return { content: resultString, generationId };
   };
 }

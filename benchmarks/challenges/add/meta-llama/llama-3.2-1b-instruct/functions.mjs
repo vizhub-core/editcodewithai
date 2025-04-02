@@ -1,1 +1,4 @@
-// Entire updated code for functions.mjs
+// TODO: Implement the add function
+export function add(a, b) {
+  return a + b;
+}

@@ -1,4 +1,4 @@
-// TODO: Implement the multiply function
+// Implement the multiply function
 export function multiply(a, b) {
   return a * b;
 }

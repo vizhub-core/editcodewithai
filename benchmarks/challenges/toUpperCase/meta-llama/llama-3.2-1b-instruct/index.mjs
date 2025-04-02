@@ -1,9 +1,9 @@
-import { toUpperCase } from "./functions.mjs";
+import { toUpperCase } from "./toUpperCase.js";
 
 const input = "hello";
 const result = toUpperCase(input);
 if (result !== "HELLO") {
-  console.error("Test failed: expected 'HELLO', got", result);
+  console.error(`Test failed: expected 'HELLO', got '${result}'`);
   process.exit(1);
 }
 console.log("toUpperCase test passed");

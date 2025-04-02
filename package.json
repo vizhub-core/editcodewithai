@@ -13,7 +13,9 @@
     "build": "tsc",
     "prepublishOnly": "npm run build",
     "typecheck": "tsc --noEmit",
-    "benchmark": "ts-node src/benchmarks/index.ts"
+    "benchmark": "ts-node src/benchmarks/cli.ts run",
+    "grade": "ts-node src/benchmarks/cli.ts grade",
+    "benchmark:help": "ts-node src/benchmarks/cli.ts help"
   },
   "repository": {
     "type": "git",
@@ -41,9 +43,13 @@
     "@vizhub/viz-types": "^0.0.2",
     "@vizhub/viz-utils": "^0.0.1",
     "dotenv": "^16.4.7",
+    "langchain": "^0.3.19",
     "llm-code-format": "^0.2.2"
   },
   "devDependencies": {
+    "cors": "^2.8.5",
+    "express": "^5.1.0",
+    "puppeteer": "^24.5.0",
     "ts-node": "^10.9.2",
     "typescript": "^5.8.2",
     "vitest": "^3.1.1"
