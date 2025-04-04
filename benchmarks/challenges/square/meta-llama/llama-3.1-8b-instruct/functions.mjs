@@ -1,6 +1,4 @@
-
-// TODO: Implement the square function
 export function square(x) {
-  // TODO
+  // Simply multiply the input by itself to return the square
+  return x * x;
 }
-      

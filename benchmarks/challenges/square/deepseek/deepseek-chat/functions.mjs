@@ -1,4 +1,4 @@
-// Implement the square function
+// Implemented the square function
 export function square(x) {
   return x * x;
 }

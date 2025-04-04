@@ -1,4 +1,4 @@
-// Entire updated code for fileA
-export function square(x) {
-  return x * x;
-}
+// Entire updated code for functions.mjs
+// fileA.js
+// fileB.js
+// fileC.js

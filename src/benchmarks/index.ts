@@ -1,35 +1,39 @@
 /**********************************************************************
- * benchmark.ts
- * --------------------------------------------------------------------
- * Requires environment variables to be set in a .env file
- * --------------------------------------------------------------------
- * Defines 5 challenges, each with index.js (ES module) that performs
- * a simple unit test. The code calls process.exit(0) on success or
- * process.exit(1) on failure.
- *
- * Runs all challenges on 5 different models:
- *    ["gpt3", "gpt4", "gpt5", "deepseek", "qwen32"]
+ * Runs all challenges on different models from the models.ts file
  *
  * Writes final results to "results.csv" with columns:
- *    challenge, model, passFail, exitCode
+ *    challenge, model, passFail
  **********************************************************************/
 import dotenv from "dotenv";
-import { runAllChallenges } from "./benchmarkRunner";
+import { challenges } from "./challenges";
+import { models } from "./models";
+import { runBenchmark, runTest, startGraderUI } from "./core"; // Import startGraderUI
 
 // Load environment variables from .env file
 dotenv.config();
 
-// Run if invoked directly
+// Main execution block (optional, if you want `npm start` to run benchmarks)
 if (require.main === module) {
-  runAllChallenges().catch((error) => {
+  const apiKey = process.env.OPENROUTER_API_KEY || "";
+  if (!apiKey) {
+    throw new Error("Please set OPENROUTER_API_KEY in your .env");
+  }
+
+  runBenchmark(challenges, models, apiKey).catch((error) => {
     console.error("Error running challenges:", error);
     process.exit(1);
   });
 }
 
-// Re-export for programmatic usage
-export { runAllChallenges } from "./benchmarkRunner";
+// Export necessary functions and variables
+export { runBenchmark, runTest, startGraderUI }; // Export startGraderUI
 export { challenges } from "./challenges";
+export { models } from "./models";
 export { createOpenRouterLlmFunction } from "./llm";
-export { runNodeTest } from "./runner";
-export { writeChallengeFiles, writeResultsToCsv } from "./fileUtils";
+export {
+  writeChallengeFiles,
+  writeResultsToCsv,
+  readResultsFromCsv,
+  ensureCacheDir,
+  saveVisualizationOutput,
+} from "./fileUtils";

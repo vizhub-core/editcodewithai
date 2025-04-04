@@ -1,5 +1,5 @@
-// Implement the multiply function
+// Define the multiply function, which returns the product of two numbers
 export function multiply(a, b) {
-  // Take two numbers and return their product
+  // Return the product of a and b using multiplication
   return a * b;
 }

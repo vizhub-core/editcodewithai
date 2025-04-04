@@ -1,5 +1,5 @@
 /**
- * Multiplies two numbers.
+ * Calculates the product of two numbers.
  *
  * @param {number} a The first number.
  * @param {number} b The second number.

@@ -1,28 +1,32 @@
 ## Your Task
 
-Implement the `toUpperCase` function that returns the given string in uppercase.
+Implement the `toUpperCase` function in `functions.mjs` that returns the given string in uppercase.
+
+## Original Files
 
 **index.mjs**
 
-```javascript
+```
+
 import { toUpperCase } from "./functions.mjs";
 
 const input = "hello";
 const result = toUpperCase(input);
 if (result !== "HELLO") {
-  console.error("Test failed: expected 'HELLO', got", result);
+  console.error(`Test failed: expected 'HELLO', got '${result}'`);
   process.exit(1);
 }
 console.log("toUpperCase test passed");
 process.exit(0);
+      
 ```
 
 **functions.mjs**
 
-```javascript
+```
 // TODO: Implement the toUpperCase function
 export function toUpperCase(str) {
-  return str.toUpperCase();
+  // Your implementation here
 }
 ```
 
@@ -44,50 +48,51 @@ Suggest changes to the original files using this exact format:
 
 ## Refactoring
 
-To refactor large files into smaller files in the same directory, we can create a new file `uppercase.js` with the following content:
+To refactor large files into smaller files in the same directory, we will create a new file `toUpperCase.js` in the same directory as `functions.mjs`.
+
+**toUpperCase.js**
 
 ```javascript
-// fileA.js
-import { toUpperCase } from "./functions.mjs";
+// Entire updated code for fileA
+```
+
+**index.mjs**
+
+```
+import { toUpperCase } from "./toUpperCase.js";
 
 const input = "hello";
 const result = toUpperCase(input);
 if (result !== "HELLO") {
-  console.error("Test failed: expected 'HELLO', got", result);
+  console.error(`Test failed: expected 'HELLO', got '${result}'`);
   process.exit(1);
 }
 console.log("toUpperCase test passed");
 process.exit(0);
+      
 ```
+
+**functions.mjs**
 
 ```javascript
-// fileB.js
-import { toUpperCase } from "./uppercase.js";
-
-const input = "hello";
-const result = toUpperCase(input);
-if (result !== "HELLO") {
-  console.error("Test failed: expected 'HELLO', got", result);
-  process.exit(1);
-}
-console.log("toUpperCase test passed");
-process.exit(0);
+// Entire updated code for fileB
 ```
 
-**uppercase.js**
+**toUpperCase.js**
 
 ```javascript
-// Entire updated code for uppercase.js
+// Entire updated code for fileA
 ```
 
-## Deleting Unused Files
+## Formatting Instructions
+
+Refactor large files into smaller files in the same directory.
+
+Delete all unused files, but we need to keep `README.md`. Files can be deleted by setting their content to empty, for example:
 
 **fileToDelete.js**
 
-```javascript
-// Entire updated code for fileToDelete.js
 ```
-
-## D3 Logic
+```
 
 For D3 logic, make sure it remains idempotent (use data joins), and prefer function signatures like `someFunction(selection, options)` where `selection` is a D3 selection and `options` is an object.

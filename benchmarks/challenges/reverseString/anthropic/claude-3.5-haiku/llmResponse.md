@@ -8,11 +8,18 @@ export function reverseString(str) {
 }
 ```
 
-This implementation follows a straightforward approach to reversing a string:
-1. `split('')` converts the string into an array of characters
-2. `reverse()` reverses the order of the array elements
-3. `join('')` converts the reversed array back into a string
+This implementation does the following:
+1. `str.split('')` converts the string into an array of characters
+2. `.reverse()` reverses the order of the array
+3. `.join('')` converts the array back into a string
 
-The function will work for the given test case, converting "OpenAI" to "IAnepO". It handles strings of any length and is concise and readable.
+The function will:
+- Take a string as input
+- Reverse the characters in the string
+- Return the reversed string
 
-The implementation is simple and meets the requirements of the test case in the `index.mjs` file.
+In this case, when given the input "OpenAI", it will return "IAnepO" as expected by the test in `index.mjs`.
+
+The implementation is concise, readable, and uses built-in JavaScript string and array methods to efficiently reverse the string.
+
+No changes are needed to `index.mjs` as the test script is already correctly set up.

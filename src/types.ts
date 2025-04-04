@@ -10,15 +10,16 @@ export interface PerformAiEditParams {
   files: VizFiles;
   llmFunction: LlmFunction;
   apiKey?: string;
+  baseURL?: string; // Added baseURL for flexibility
 }
 
 export interface PerformAiEditResult {
   changedFiles: VizFiles;
-  openRouterGenerationId: string;
-  upstreamCostCents: number;
-  provider: string;
-  inputTokens: number;
-  outputTokens: number;
-  promptTemplateVersion: number;
-  rawResponse: string; // Raw LLM response
+  openRouterGenerationId?: string;
+  upstreamCostCents?: number;
+  provider?: string;
+  inputTokens?: number;
+  outputTokens?: number;
+  promptTemplateVersion?: number;
+  rawResponse?: string;
 }
