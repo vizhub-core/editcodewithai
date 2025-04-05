@@ -154,6 +154,21 @@ export default function Home() {
         <br />
         Tab: Next Result
       </div>
+
+      <button 
+        className="save-button"
+        onClick={() => {
+          console.log('Current results:', results.map(r => ({
+            challenge: r.challenge,
+            model: r.model,
+            technical: r.technical,
+            aesthetics: r.aesthetics,
+            notes: r.notes
+          })));
+        }}
+      >
+        Save Results
+      </button>
     </div>
   );
 }

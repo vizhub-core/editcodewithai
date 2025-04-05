@@ -69,3 +69,7 @@ body {
 .keyboard-tips {
   @apply fixed bottom-5 right-5 bg-black/80 text-white p-2.5 rounded-md text-xs leading-relaxed;
 }
+
+.save-button {
+  @apply fixed bottom-5 left-5 bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors;
+}
