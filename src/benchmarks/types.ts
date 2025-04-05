@@ -22,6 +22,7 @@ export interface ChallengeResult {
     reviewedBy: string;
     reviewedAt: string;
   };
+  type?: "code" | "visualization";
 }
 
 export interface TestRunResult {

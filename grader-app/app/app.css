@@ -1,0 +1,75 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif,
+    "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+}
+
+html,
+body {
+  @apply bg-white dark:bg-gray-950;
+
+  @media (prefers-color-scheme: dark) {
+    color-scheme: dark;
+  }
+}
+
+.reviewer-input {
+  @apply px-3 py-2 border border-gray-300 rounded-md;
+}
+
+.result-card {
+  @apply bg-white rounded-lg p-3 shadow-sm border border-gray-200;
+}
+
+.result-card:focus-within {
+  @apply outline-2 outline-blue-600;
+}
+
+.viz-container {
+  @apply border border-gray-200 p-2 my-2 bg-white rounded-md text-center;
+}
+
+.viz-container img {
+  @apply max-w-full h-auto;
+}
+
+.grade-controls {
+  @apply flex gap-2 my-2;
+}
+
+.grade-group {
+  @apply flex-1;
+}
+
+.grade-buttons {
+  @apply flex gap-1 my-1;
+}
+
+.grade-btn {
+  @apply flex-1 px-1 py-1 border border-gray-200 bg-white cursor-pointer rounded-md text-sm;
+}
+
+.grade-btn:hover {
+  @apply bg-gray-50;
+}
+
+.grade-btn.selected {
+  @apply bg-blue-600 text-white border-blue-600;
+}
+
+.meta {
+  @apply text-gray-600 text-sm mb-2.5;
+}
+
+.notes {
+  @apply w-full h-[40px] my-2 px-2 py-1 border border-gray-200 rounded-md resize-y text-sm;
+}
+
+.keyboard-tips {
+  @apply fixed bottom-5 right-5 bg-black/80 text-white p-2.5 rounded-md text-xs leading-relaxed;
+}
+
+.save-button {
+  @apply fixed bottom-5 left-5 bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors;
+}

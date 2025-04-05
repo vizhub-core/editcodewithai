@@ -1,6 +1,7 @@
 import { VizFiles } from "@vizhub/viz-types";
 import fs from "fs";
 import path from "path";
+import { csvFormat } from "d3";
 import { ChallengeResult } from "./types";
 
 /**
@@ -32,7 +33,10 @@ export function writeChallengeFiles(
 
   // Write the LLM response to a file if provided
   if (llmResponse) {
-    const responsePath = path.join(challengeDir, "llmResponse.md");
+    const responsePath = path.join(
+      challengeDir,
+      "llmResponse.md"
+    );
     fs.writeFileSync(responsePath, llmResponse, "utf-8");
   }
 
@@ -46,22 +50,19 @@ export function writeResultsToCsv(
   results: ChallengeResult[],
   filePath: string = "benchmarks/results.csv"
 ): string {
-  let csv =
-    "challenge,model,passFail,grade,aesthetics,reviewedBy,reviewedAt,notes\n";
-  for (const r of results) {
-    csv += `${r.challenge},${r.model},${r.passFail},`;
-    // Add human grading fields if they exist
-    if (r.humanGrade) {
-      csv += `${r.humanGrade.grade},`;
-      csv += `${r.humanGrade.aesthetics || ""},`;
-      csv += `${r.humanGrade.reviewedBy},`;
-      csv += `${r.humanGrade.reviewedAt},`;
-      csv += `"${(r.humanGrade.notes || "").replace(/"/g, '""')}"`;
-    } else {
-      csv += ",,,,"; // Empty columns for ungraded entries
-    }
-    csv += "\n";
-  }
+  const formattedResults = results.map((r) => ({
+    challenge: r.challenge,
+    model: r.model,
+    passFail: r.passFail,
+    grade: r.humanGrade?.grade ?? "",
+    aesthetics: r.humanGrade?.aesthetics ?? "",
+    reviewedBy: r.humanGrade?.reviewedBy ?? "",
+    reviewedAt: r.humanGrade?.reviewedAt ?? "",
+    notes: r.humanGrade?.notes ?? "",
+    type: r.type,
+  }));
+
+  const csv = csvFormat(formattedResults);
 
   // Ensure benchmarks directory exists
   const dir = path.dirname(filePath);
@@ -100,7 +101,10 @@ export function saveVisualizationOutput(
   }
 
   const outputPath = path.join(outputDir, "output.png");
-  fs.writeFileSync(outputPath, Buffer.from(imageData, "base64"));
+  fs.writeFileSync(
+    outputPath,
+    Buffer.from(imageData, "base64")
+  );
 
   return outputPath;
 }
@@ -116,7 +120,9 @@ export function readResultsFromCsv(
   }
 
   const csvContent = fs.readFileSync(filePath, "utf-8");
-  const lines = csvContent.split("\n").filter((line) => line.trim());
+  const lines = csvContent
+    .split("\n")
+    .filter((line) => line.trim());
   if (lines.length <= 1) {
     return []; // Handle empty or header-only file
   }
@@ -133,19 +139,23 @@ export function readResultsFromCsv(
     // Check if human grading data exists (check if grade column has a value)
     if (values[3] && values[3].trim() !== "") {
       const grade = parseInt(values[3]);
-      const aesthetics = values[4] ? parseInt(values[4]) : undefined;
+      const aesthetics = values[4]
+        ? parseInt(values[4])
+        : undefined;
 
       result.humanGrade = {
-        grade: (grade >= 0 && grade <= 5 ? grade : 0) as 0 | 1 | 2 | 3 | 4 | 5,
+        grade: (grade >= 0 && grade <= 5 ? grade : 0) as
+          | 0
+          | 1
+          | 2
+          | 3
+          | 4
+          | 5,
         aesthetics:
           aesthetics !== undefined && !isNaN(aesthetics)
-            ? ((aesthetics >= 0 && aesthetics <= 5 ? aesthetics : 0) as
-                | 0
-                | 1
-                | 2
-                | 3
-                | 4
-                | 5)
+            ? ((aesthetics >= 0 && aesthetics <= 5
+                ? aesthetics
+                : 0) as 0 | 1 | 2 | 3 | 4 | 5)
             : undefined,
         reviewedBy: values[5] || "",
         reviewedAt: values[6] || "",

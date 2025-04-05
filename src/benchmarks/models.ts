@@ -15,4 +15,5 @@ export const models = [
   "meta-llama/llama-3.1-8b-instruct",
   "meta-llama/llama-3.2-3b-instruct",
   "meta-llama/llama-3.2-1b-instruct",
+  "openrouter/quasar-alpha",
 ];
