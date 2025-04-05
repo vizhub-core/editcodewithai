@@ -19,7 +19,7 @@ body {
 }
 
 .result-card {
-  @apply bg-white rounded-lg p-5 my-5 shadow-sm border border-gray-200;
+  @apply bg-white rounded-lg p-3 shadow-sm border border-gray-200;
 }
 
 .result-card:focus-within {
@@ -27,7 +27,7 @@ body {
 }
 
 .viz-container {
-  @apply border border-gray-200 p-5 my-2.5 bg-white rounded-md text-center;
+  @apply border border-gray-200 p-2 my-2 bg-white rounded-md text-center;
 }
 
 .viz-container img {
@@ -35,7 +35,7 @@ body {
 }
 
 .grade-controls {
-  @apply flex gap-5 my-5;
+  @apply flex gap-2 my-2;
 }
 
 .grade-group {
@@ -47,7 +47,7 @@ body {
 }
 
 .grade-btn {
-  @apply flex-1 px-2 py-2 border border-gray-200 bg-white cursor-pointer rounded-md;
+  @apply flex-1 px-1 py-1 border border-gray-200 bg-white cursor-pointer rounded-md text-sm;
 }
 
 .grade-btn:hover {
@@ -75,7 +75,7 @@ body {
 }
 
 .notes {
-  @apply w-full h-[60px] my-2.5 px-2 py-2 border border-gray-200 rounded-md resize-y;
+  @apply w-full h-[40px] my-2 px-2 py-1 border border-gray-200 rounded-md resize-y text-sm;
 }
 
 .keyboard-tips {
