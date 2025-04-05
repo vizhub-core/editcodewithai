@@ -1,8 +1,27 @@
 import { useState, useEffect } from "react";
-import { csvParse } from "d3-dsv";
+import { csvParse, csvFormat } from "d3-dsv";
 import type { Route } from "./+types/home";
+import { Form } from "react-router";
 import { GradeResult } from "../components/GradeResult";
 import type { Result } from "../types/result";
+import { writeFile } from "fs/promises";
+import path from "path";
+
+export async function action({ request }) {
+  const formData = await request.formData();
+  const csvContent = formData.get("results") as string;
+
+  const filePath = path.join(
+    process.cwd(),
+    "public",
+    "benchmarks",
+    "results",
+    "results.csv"
+  );
+  await writeFile(filePath, csvContent);
+
+  return { ok: true };
+}
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -155,20 +174,28 @@ export default function Home() {
         Tab: Next Result
       </div>
 
-      <button 
-        className="save-button"
-        onClick={() => {
-          console.log('Current results:', results.map(r => ({
-            challenge: r.challenge,
-            model: r.model,
-            technical: r.technical,
-            aesthetics: r.aesthetics,
-            notes: r.notes
-          })));
-        }}
-      >
-        Save Results
-      </button>
+      <Form method="post">
+        <input
+          type="hidden"
+          name="results"
+          value={csvFormat(
+            results.map((r) => ({
+              challenge: r.challenge,
+              model: r.model,
+              type: r.type,
+              passFail: r.passFail,
+              grade: r.technical || "",
+              aesthetics: r.aesthetics || "",
+              reviewedBy: reviewer || "anonymous",
+              reviewedAt: new Date().toISOString(),
+              notes: r.notes || "",
+            }))
+          )}
+        />
+        <button type="submit" className="save-button">
+          Save Results
+        </button>
+      </Form>
     </div>
   );
 }
