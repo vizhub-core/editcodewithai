@@ -11,6 +11,8 @@
   "dependencies": {
     "@react-router/node": "^7.5.0",
     "@react-router/serve": "^7.5.0",
+    "@types/d3-dsv": "^3.0.7",
+    "d3-dsv": "^3.0.1",
     "isbot": "^5.1.17",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",

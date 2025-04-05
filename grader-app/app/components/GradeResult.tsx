@@ -9,27 +9,15 @@ interface Props {
 }
 
 export function GradeResult({ result, index, onGradeChange, onNotesChange }: Props) {
-  const [showCode, setShowCode] = useState(false);
-
   return (
     <div className="result-card" tabIndex={0}>
       <div className="meta">
         <span>{result.challenge} - {result.model} ({result.passFail})</span>
-        <button 
-          className="toggle-code" 
-          onClick={() => setShowCode(!showCode)}
-        >
-          Toggle Code
-        </button>
       </div>
 
-      <div className="viz-container" style={{ display: showCode ? 'none' : 'block' }}>
+      <div className="viz-container">
         <img src={`/benchmarks/visualizations/${result.challenge}/${result.model}/output.png`} alt="Visualization" />
       </div>
-
-      <pre className="code-view" style={{ display: showCode ? 'block' : 'none' }}>
-        {result.code || 'Code not available'}
-      </pre>
 
       <div className="grade-controls">
         {['technical', 'aesthetics'].map((type) => (

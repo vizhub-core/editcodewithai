@@ -58,20 +58,8 @@ body {
   @apply bg-blue-600 text-white border-blue-600;
 }
 
-.code-view {
-  @apply bg-gray-900 text-gray-300 p-4 rounded-md overflow-x-auto font-mono text-sm leading-relaxed hidden;
-}
-
 .meta {
-  @apply text-gray-600 text-sm mb-2.5 flex justify-between items-center;
-}
-
-.toggle-code {
-  @apply bg-transparent border border-gray-200 px-2 py-1 rounded-md cursor-pointer text-xs;
-}
-
-.toggle-code:hover {
-  @apply bg-gray-50;
+  @apply text-gray-600 text-sm mb-2.5;
 }
 
 .notes {

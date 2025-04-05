@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { csvParse } from "d3-dsv";
 import type { Route } from "./+types/home";
 import { GradeResult } from "../components/GradeResult";
 import type { Result } from "../types/result";
@@ -26,32 +27,28 @@ export default function Home() {
       const response = await fetch(
         "/benchmarks/results/results.csv"
       );
-      const csv = await response.text();
-      const [header, ...lines] = csv.trim().split("\n");
-      const parsedResults = lines.map((line) => {
-        const [
-          challenge,
-          model,
-          passFail,
-          grade,
-          aesthetics,
-          reviewedBy,
-          reviewedAt,
-          notes,
-        ] = line.split(",").map((s) => s.trim());
-        return {
-          challenge,
-          model,
-          passFail,
-          technical: grade ? Number(grade) : undefined,
-          aesthetics: aesthetics
-            ? Number(aesthetics)
+      const text = await response.text();
+      const data = csvParse(text);
+      console.log(data);
+      const parsedResults = data
+        .map((row) => ({
+          challenge: row.challenge,
+          model: row.model,
+          type: row.type,
+          passFail: row.passFail,
+          technical: row.grade
+            ? Number(row.grade)
             : undefined,
-          reviewedBy,
-          reviewedAt,
-          notes: notes?.replace(/^"|"$/g, ""),
-        };
-      });
+          aesthetics: row.aesthetics
+            ? Number(row.aesthetics)
+            : undefined,
+          reviewedBy: row.reviewedBy,
+          reviewedAt: row.reviewedAt,
+          notes: row.notes,
+        }))
+        .filter(
+          (result) => result.type === "visualization"
+        );
       setResults(parsedResults);
     } catch (error) {
       console.error("Failed to load results:", error);
@@ -154,8 +151,6 @@ export default function Home() {
         1-5: Technical Grade
         <br />
         Shift + 1-5: Aesthetics
-        <br />
-        Space: Toggle Code
         <br />
         Tab: Next Result
       </div>
