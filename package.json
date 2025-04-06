@@ -16,7 +16,8 @@
     "benchmark": "ts-node src/benchmarks/cli.ts run; cp -r ./benchmarks grader-app/public",
     "grade": "ts-node src/benchmarks/cli.ts grade",
     "benchmark:help": "ts-node src/benchmarks/cli.ts help",
-    "upgrade": "ncu -u"
+    "upgrade": "ncu -u",
+    "prettier": "prettier {*.*,**/*.*} --write"
   },
   "repository": {
     "type": "git",
@@ -47,12 +48,13 @@
     "d3": "^7.9.0",
     "dotenv": "^16.4.7",
     "langchain": "^0.3.20",
-    "llm-code-format": "^2.0.0"
+    "llm-code-format": "^2.0.1"
   },
   "devDependencies": {
     "cors": "^2.8.5",
     "express": "^5.1.0",
     "npm-check-updates": "^17.1.16",
+    "prettier": "^3.5.3",
     "puppeteer": "^24.6.0",
     "ts-node": "^10.9.2",
     "typescript": "^5.8.3",

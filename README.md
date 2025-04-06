@@ -41,7 +41,7 @@ const myLlmFunction = async (prompt: string) => {
         model: "openai/gpt-4",
         messages: [{ role: "user", content: prompt }],
       }),
-    }
+    },
   );
 
   const data = await response.json();
@@ -141,6 +141,7 @@ npm run grade -- --challenge stockPriceChart
 #### Scoring Guidelines
 
 **Functionality (0-5)**:
+
 - 0: Does not work
 - 1: Major bugs
 - 2: Works but missing requirements
@@ -149,6 +150,7 @@ npm run grade -- --challenge stockPriceChart
 - 5: Perfect implementation with extras
 
 **Aesthetics (0-5)**:
+
 - 0: Unusable layout
 - 1: Poor design
 - 2: Basic appearance

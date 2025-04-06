@@ -102,7 +102,7 @@ console.log('new file');
     });
 
     const newFile = Object.values(result.changedFiles).find(
-      (f) => f.name === "new-file.js"
+      (f) => f.name === "new-file.js",
     );
     expect(newFile).toBeDefined();
     expect(newFile?.text).toBe("console.log('new file');");

@@ -50,7 +50,7 @@ export async function getGenerationMetadata({
       const text = await response.text();
       debug &&
         console.error(
-          `Attempt ${attempt} failed. Status: ${response.status}, response text: ${text}`
+          `Attempt ${attempt} failed. Status: ${response.status}, response text: ${text}`,
         );
 
       if (attempt < maxRetries) {
@@ -58,7 +58,7 @@ export async function getGenerationMetadata({
         await new Promise((resolve) => setTimeout(resolve, retryDelay));
       } else {
         throw new Error(
-          `HTTP error! Status: ${response.status} after ${maxRetries} attempts.`
+          `HTTP error! Status: ${response.status} after ${maxRetries} attempts.`,
         );
       }
     }

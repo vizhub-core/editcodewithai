@@ -16,7 +16,7 @@ describe("fileUtils", () => {
 
     it("should return false for non-empty file content", () => {
       expect(
-        shouldDeleteFile({ name: "test.js", text: "console.log('hi');" })
+        shouldDeleteFile({ name: "test.js", text: "console.log('hi');" }),
       ).toBe(false);
     });
 
@@ -52,7 +52,7 @@ describe("fileUtils", () => {
       };
 
       const result = prepareFilesForPrompt(files);
-      
+
       expect(result["data.csv"].split("\n").length).toBe(50); // Truncated to 50 lines
       expect(result["data.json"].split("\n").length).toBe(50); // Truncated to 50 lines
     });

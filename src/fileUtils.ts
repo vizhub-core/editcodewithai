@@ -15,19 +15,19 @@ export function shouldDeleteFile(file?: VizFile) {
  */
 export function prepareFilesForPrompt(files: VizFiles): FileCollection {
   const result: FileCollection = {};
-  
+
   Object.values(files).forEach((file) => {
     // Example: truncate large files, etc.
     result[file.name] = file.text
       .split("\n")
       .slice(
         0,
-        file.name.endsWith(".csv") || file.name.endsWith(".json") ? 50 : 500
+        file.name.endsWith(".csv") || file.name.endsWith(".json") ? 50 : 500,
       )
       .map((line) => line.slice(0, 200))
       .join("\n");
   });
-  
+
   return result;
 }
 
@@ -36,14 +36,17 @@ export function prepareFilesForPrompt(files: VizFiles): FileCollection {
  */
 export function mergeFileChanges(
   originalFiles: VizFiles,
-  parsedFiles: FileCollection
+  parsedFiles: FileCollection,
 ): VizFiles {
   // Start with existing files
   let changedFiles: VizFiles = Object.keys(originalFiles).reduce(
     (acc, fileId) => {
       const original = originalFiles[fileId];
       const changedText = parsedFiles[original.name];
-      const changedFile = changedText !== undefined ? { name: original.name, text: changedText } : undefined;
+      const changedFile =
+        changedText !== undefined
+          ? { name: original.name, text: changedText }
+          : undefined;
 
       if (shouldDeleteFile(changedFile)) {
         // Exclude from new set
@@ -57,13 +60,13 @@ export function mergeFileChanges(
       };
       return acc;
     },
-    {} as VizFiles
+    {} as VizFiles,
   );
 
   // Handle newly-created files
   Object.entries(parsedFiles).forEach(([fileName, fileText]) => {
     const existingFile = Object.values(changedFiles).find(
-      (file) => file.name === fileName
+      (file) => file.name === fileName,
     );
     // If no existing file and not empty => it's a new file
     if (!existingFile && fileText.trim() !== "") {
