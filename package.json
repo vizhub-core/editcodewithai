@@ -15,7 +15,9 @@
     "typecheck": "tsc --noEmit",
     "benchmark": "ts-node src/benchmarks/cli.ts run; cp -r ./benchmarks grader-app/public",
     "grade": "ts-node src/benchmarks/cli.ts grade",
-    "benchmark:help": "ts-node src/benchmarks/cli.ts help"
+    "benchmark:help": "ts-node src/benchmarks/cli.ts help",
+    "upgrade": "ncu -u",
+    "prettier": "prettier {*.*,**/*.*} --write"
   },
   "repository": {
     "type": "git",
@@ -39,21 +41,23 @@
   "homepage": "https://github.com/vizhub-core/editcodewithai#readme",
   "dependencies": {
     "@langchain/core": "^0.3.43",
-    "@langchain/openai": "^0.5.2",
+    "@langchain/openai": "^0.5.4",
     "@types/d3": "^7.4.3",
-    "@vizhub/viz-types": "^0.0.2",
-    "@vizhub/viz-utils": "^0.0.1",
+    "@vizhub/viz-types": "^0.1.0",
+    "@vizhub/viz-utils": "^0.1.0",
     "d3": "^7.9.0",
     "dotenv": "^16.4.7",
-    "langchain": "^0.3.19",
-    "llm-code-format": "^0.2.2"
+    "langchain": "^0.3.20",
+    "llm-code-format": "^2.0.1"
   },
   "devDependencies": {
     "cors": "^2.8.5",
     "express": "^5.1.0",
-    "puppeteer": "^24.5.0",
+    "npm-check-updates": "^17.1.16",
+    "prettier": "^3.5.3",
+    "puppeteer": "^24.6.0",
     "ts-node": "^10.9.2",
-    "typescript": "^5.8.2",
+    "typescript": "^5.8.3",
     "vitest": "^3.1.1"
   }
 }

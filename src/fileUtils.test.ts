@@ -4,7 +4,7 @@ import {
   prepareFilesForPrompt,
   mergeFileChanges,
 } from "./fileUtils";
-import { VizFiles } from "@vizhub/viz-types";
+import { VizFiles, FileCollection } from "@vizhub/viz-types";
 
 describe("fileUtils", () => {
   describe("shouldDeleteFile", () => {
@@ -16,7 +16,7 @@ describe("fileUtils", () => {
 
     it("should return false for non-empty file content", () => {
       expect(
-        shouldDeleteFile({ name: "test.js", text: "console.log('hi');" })
+        shouldDeleteFile({ name: "test.js", text: "console.log('hi');" }),
       ).toBe(false);
     });
 
@@ -35,8 +35,8 @@ describe("fileUtils", () => {
       };
 
       const result = prepareFilesForPrompt(files);
-      expect(result[0].name).toBe("large.js");
-      expect(result[0].text.split("\n").length).toBe(500); // Truncated to 500 lines
+      expect(result["large.js"]).toBeDefined();
+      expect(result["large.js"].split("\n").length).toBe(500); // Truncated to 500 lines
     });
 
     it("should truncate CSV and JSON files more aggressively", () => {
@@ -52,11 +52,9 @@ describe("fileUtils", () => {
       };
 
       const result = prepareFilesForPrompt(files);
-      const csvFile = result.find((f) => f.name === "data.csv");
-      const jsonFile = result.find((f) => f.name === "data.json");
 
-      expect(csvFile?.text.split("\n").length).toBe(50); // Truncated to 50 lines
-      expect(jsonFile?.text.split("\n").length).toBe(50); // Truncated to 50 lines
+      expect(result["data.csv"].split("\n").length).toBe(50); // Truncated to 50 lines
+      expect(result["data.json"].split("\n").length).toBe(50); // Truncated to 50 lines
     });
 
     it("should truncate long lines", () => {
@@ -68,7 +66,7 @@ describe("fileUtils", () => {
       };
 
       const result = prepareFilesForPrompt(files);
-      expect(result[0].text.length).toBeLessThan(201); // Truncated to 200 chars
+      expect(result["longline.js"].length).toBeLessThan(201); // Truncated to 200 chars
     });
   });
 
@@ -77,7 +75,7 @@ describe("fileUtils", () => {
       const originalFiles: VizFiles = {
         file1: { name: "unchanged.js", text: "console.log('original');" },
       };
-      const parsedFiles: { name: string; text: string }[] = [];
+      const parsedFiles: FileCollection = {};
 
       const result = mergeFileChanges(originalFiles, parsedFiles);
       expect(result).toEqual(originalFiles);
@@ -87,9 +85,9 @@ describe("fileUtils", () => {
       const originalFiles: VizFiles = {
         file1: { name: "changed.js", text: "console.log('original');" },
       };
-      const parsedFiles = [
-        { name: "changed.js", text: "console.log('updated');" },
-      ];
+      const parsedFiles: FileCollection = {
+        "changed.js": "console.log('updated');",
+      };
 
       const result = mergeFileChanges(originalFiles, parsedFiles);
       expect(result.file1.text).toBe("console.log('updated');");
@@ -100,7 +98,9 @@ describe("fileUtils", () => {
         file1: { name: "keep.js", text: "console.log('keep');" },
         file2: { name: "delete.js", text: "console.log('delete');" },
       };
-      const parsedFiles = [{ name: "delete.js", text: "" }];
+      const parsedFiles: FileCollection = {
+        "delete.js": "",
+      };
 
       const result = mergeFileChanges(originalFiles, parsedFiles);
       expect(Object.keys(result)).toHaveLength(1);
@@ -112,7 +112,9 @@ describe("fileUtils", () => {
       const originalFiles: VizFiles = {
         file1: { name: "existing.js", text: "console.log('existing');" },
       };
-      const parsedFiles = [{ name: "new.js", text: "console.log('new');" }];
+      const parsedFiles: FileCollection = {
+        "new.js": "console.log('new');",
+      };
 
       const result = mergeFileChanges(originalFiles, parsedFiles);
       expect(Object.keys(result)).toHaveLength(2);
@@ -128,11 +130,11 @@ describe("fileUtils", () => {
         file2: { name: "update.js", text: "console.log('original');" },
         file3: { name: "delete.js", text: "console.log('delete');" },
       };
-      const parsedFiles = [
-        { name: "update.js", text: "console.log('updated');" },
-        { name: "delete.js", text: "" },
-        { name: "new.js", text: "console.log('new');" },
-      ];
+      const parsedFiles: FileCollection = {
+        "update.js": "console.log('updated');",
+        "delete.js": "",
+        "new.js": "console.log('new');",
+      };
 
       const result = mergeFileChanges(originalFiles, parsedFiles);
 

@@ -1,8 +1,0 @@
-**functions.mjs**
-
-```js
-// TODO: Implement the multiply function
-export function multiply(a, b) {
-  return a * b;
-}
-```
