@@ -2,6 +2,8 @@
 
 A lightweight, flexible library for AI-powered code editing.
 
+See also [vizhub-benchmarks](https://github.com/vizhub-core/vizhub-benchmarks).
+
 ## Overview
 
 `editcodewithai` is a JavaScript/TypeScript library that enables AI-powered code editing in your applications. It provides a simple interface to send code files and instructions to an LLM (Large Language Model) and receive edited code in return.
@@ -33,7 +35,7 @@ const myLlmFunction = async (prompt: string) => {
         Authorization: `Bearer ${apiKey}`,
       },
       body: JSON.stringify({
-        model: "openai/gpt-4",
+        model: "anthropic/claude-3.5-sonnet",
         messages: [{ role: "user", content: prompt }],
       }),
     },
