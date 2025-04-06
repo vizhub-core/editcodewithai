@@ -1,4 +1,4 @@
-import { VizFiles, VizFile } from "@vizhub/viz-types";
+import { VizFiles, VizFile, FileCollection } from "@vizhub/viz-types";
 import { generateVizFileId } from "@vizhub/viz-utils";
 
 /**
@@ -13,19 +13,22 @@ export function shouldDeleteFile(file?: VizFile) {
 /**
  * Processes files for the prompt by truncating large files
  */
-export function prepareFilesForPrompt(files: VizFiles) {
-  return Object.values(files).map((file) => ({
-    name: file.name,
+export function prepareFilesForPrompt(files: VizFiles): FileCollection {
+  const result: FileCollection = {};
+  
+  Object.values(files).forEach((file) => {
     // Example: truncate large files, etc.
-    text: file.text
+    result[file.name] = file.text
       .split("\n")
       .slice(
         0,
         file.name.endsWith(".csv") || file.name.endsWith(".json") ? 50 : 500
       )
       .map((line) => line.slice(0, 200))
-      .join("\n"),
-  }));
+      .join("\n");
+  });
+  
+  return result;
 }
 
 /**
@@ -33,13 +36,14 @@ export function prepareFilesForPrompt(files: VizFiles) {
  */
 export function mergeFileChanges(
   originalFiles: VizFiles,
-  parsedFiles: { name: string; text: string }[]
+  parsedFiles: FileCollection
 ): VizFiles {
   // Start with existing files
   let changedFiles: VizFiles = Object.keys(originalFiles).reduce(
     (acc, fileId) => {
       const original = originalFiles[fileId];
-      const changedFile = parsedFiles.find((f) => f.name === original.name);
+      const changedText = parsedFiles[original.name];
+      const changedFile = changedText !== undefined ? { name: original.name, text: changedText } : undefined;
 
       if (shouldDeleteFile(changedFile)) {
         // Exclude from new set
@@ -57,16 +61,16 @@ export function mergeFileChanges(
   );
 
   // Handle newly-created files
-  parsedFiles.forEach((changedFile) => {
+  Object.entries(parsedFiles).forEach(([fileName, fileText]) => {
     const existingFile = Object.values(changedFiles).find(
-      (file) => file.name === changedFile.name
+      (file) => file.name === fileName
     );
     // If no existing file and not empty => it's a new file
-    if (!existingFile && !shouldDeleteFile(changedFile)) {
+    if (!existingFile && fileText.trim() !== "") {
       const newFileId = generateVizFileId();
       changedFiles[newFileId] = {
-        name: changedFile.name,
-        text: changedFile.text,
+        name: fileName,
+        text: fileText,
       };
     }
   });

@@ -1,4 +1,4 @@
-import { parseMarkdownFiles, serializeMarkdownFiles } from "llm-code-format";
+import { parseMarkdownFiles, formatMarkdownFiles } from "llm-code-format";
 import { PerformAiEditParams, PerformAiEditResult } from "./types";
 import { PROMPT_TEMPLATE_VERSION, assembleFullPrompt } from "./prompt";
 import { getGenerationMetadata } from "./metadata";
@@ -19,9 +19,9 @@ export async function performAiEdit({
   llmFunction,
   apiKey,
 }: PerformAiEditParams): Promise<PerformAiEditResult> {
-  // 1. Serialize the existing files into the "markdown code block" format
+  // 1. Format the existing files into the "markdown code block" format
   const preparedFiles = prepareFilesForPrompt(files);
-  const filesContext = serializeMarkdownFiles(preparedFiles);
+  const filesContext = formatMarkdownFiles(preparedFiles);
 
   // 2. Assemble the final prompt
   const fullPrompt = assembleFullPrompt({ filesContext, prompt });
