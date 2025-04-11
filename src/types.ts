@@ -10,7 +10,7 @@ export interface PerformAiEditParams {
   files: VizFiles;
   llmFunction: LlmFunction;
   apiKey?: string;
-  baseURL?: string; // Added baseURL for flexibility
+  baseURL?: string;
 }
 
 export interface PerformAiEditResult {

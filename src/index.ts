@@ -1,8 +1,14 @@
 import { parseMarkdownFiles, formatMarkdownFiles } from "llm-code-format";
-import { PerformAiEditParams, PerformAiEditResult } from "./types";
+import type { PerformAiEditParams, PerformAiEditResult } from "./types";
 import { PROMPT_TEMPLATE_VERSION, assembleFullPrompt } from "./prompt";
 import { getGenerationMetadata } from "./metadata";
 import { prepareFilesForPrompt, mergeFileChanges } from "./fileUtils";
+
+export type {
+  LlmFunction,
+  PerformAiEditParams,
+  PerformAiEditResult,
+} from "./types";
 
 const debug = false;
 
