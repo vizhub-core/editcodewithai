@@ -43,6 +43,32 @@ const coffeeData = `hour,cups
 4,0
 5,0`;
 
+const socialNetworkData = `id,name,group,followers
+alice,Alice Chen,tech,2300
+bob,Bob Martinez,music,850
+charlie,Charlie Kim,art,1200
+diana,Diana Patel,tech,3100
+eve,Eve Johnson,music,950
+frank,Frank Wilson,art,670
+grace,Grace Lee,tech,1800
+henry,Henry Davis,music,1400
+iris,Iris Brown,art,2000
+jack,Jack Taylor,tech,2800`;
+
+const connectionsData = `source,target,strength,type
+alice,diana,0.9,collaboration
+alice,grace,0.7,mentorship
+bob,eve,0.8,collaboration
+bob,henry,0.6,friendship
+charlie,frank,0.5,inspiration
+charlie,iris,0.8,collaboration
+diana,jack,0.7,professional
+eve,henry,0.9,bandmates
+frank,iris,0.6,gallery
+grace,alice,0.4,reverse_mentorship
+henry,bob,0.3,fan
+iris,charlie,0.5,mutual_admiration`;
+
 export const challenges: Challenge[] = [
   {
     name: "add",
@@ -285,6 +311,84 @@ export function reverseString(str) {
       file2: {
         name: "data.csv",
         text: coffeeData,
+      },
+    },
+  },
+  {
+    name: "socialNetworkGraph",
+    type: "visualization",
+    prompt:
+      "🎭 You're building a social network visualization for a creative community!\n\n" +
+      "**Your mission:** Create a force-directed network graph where:\n" +
+      "• Nodes represent people (sized by follower count)\n" +
+      "• Links show relationships (thickness = connection strength)\n" +
+      "• Colors group by profession (tech=🔵, music=🟡, art=🟢)\n" +
+      "• Hover shows person details + connection types\n" +
+      "• Drag nodes to explore the network!\n\n" +
+      "**The twist:** This isn't just about D3 syntax—it's about understanding social dynamics through code. " +
+      "Strong connections should pull nodes closer, weak ones barely influence positioning.\n\n" +
+      "💡 **Pro tip:** Real social networks aren't random—they cluster by profession but bridge through collaborations. " +
+      "Your force simulation should reflect this natural grouping!\n\n" +
+      "Parse the CSV files and make the community come alive through physics and interaction.",
+    sampleData: socialNetworkData,
+    files: {
+      file1: {
+        name: "index.html",
+        text: `<!DOCTYPE html>
+<html>
+<head>
+  <title>Creative Community Network</title>
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      margin: 0;
+      background: #0a0a0a;
+      color: white;
+      overflow: hidden;
+    }
+    #network {
+      width: 100vw;
+      height: 100vh;
+    }
+    .tooltip {
+      position: absolute;
+      background: rgba(0,0,0,0.9);
+      border: 1px solid #333;
+      border-radius: 8px;
+      padding: 12px;
+      font-size: 14px;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+    /* TODO: Add your network styling */
+  </style>
+</head>
+<body>
+  <div id="network"></div>
+  <div class="tooltip"></div>
+  <script>
+    // TODO: Create the force-directed network visualization
+    // Load data from nodes.csv and links.csv
+    // Use d3.forceSimulation() with multiple forces:
+    // - forceLink() for connections
+    // - forceManyBody() for repulsion  
+    // - forceCenter() to center the network
+    // - forceCollide() to prevent node overlap
+    
+    // Remember: connection strength should affect link distance!
+  </script>
+</body>
+</html>`,
+      },
+      file2: {
+        name: "nodes.csv",
+        text: socialNetworkData,
+      },
+      file3: {
+        name: "links.csv",
+        text: connectionsData,
       },
     },
   },
