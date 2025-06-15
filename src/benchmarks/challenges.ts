@@ -17,6 +17,32 @@ const stockData = `date,symbol,price
 2000-11-01,AAPL,190
 2000-12-01,AAPL,200`;
 
+const coffeeData = `hour,cups
+6,1
+7,2
+8,3
+9,1
+10,0
+11,0
+12,0
+13,0
+14,1
+15,2
+16,1
+17,0
+18,0
+19,0
+20,1
+21,0
+22,0
+23,0
+0,0
+1,0
+2,0
+3,0
+4,0
+5,0`;
+
 export const challenges: Challenge[] = [
   {
     name: "add",
@@ -207,6 +233,58 @@ export function reverseString(str) {
       file2: {
         name: "data.csv",
         text: stockData,
+      },
+    },
+  },
+  {
+    name: "coffeeConsumptionClock",
+    type: "visualization",
+    prompt:
+      "Create a radial/circular visualization showing coffee consumption by hour of day. The chart should:\n" +
+      "1. Use D3.js to create a circular layout (like a clock)\n" +
+      "2. Each hour should be positioned around the circle like clock positions\n" +
+      "3. Coffee consumption should be shown as bars extending radially outward\n" +
+      "4. Include hour labels (0-23 or 12am-11pm format)\n" +
+      "5. Add a title and consider creative styling (coffee cup icons, warm colors, etc.)\n" +
+      "Parse the CSV data from 'data.csv' and create an HTML file that renders the radial visualization.",
+    sampleData: coffeeData,
+    files: {
+      file1: {
+        name: "index.html",
+        text: `<!DOCTYPE html>
+<html>
+<head>
+  <title>Coffee Consumption Clock</title>
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      margin: 0;
+      background: #f5f5f5;
+    }
+    #chart {
+      text-align: center;
+    }
+    /* TODO: Add your custom styles */
+  </style>
+</head>
+<body>
+  <div id="chart"></div>
+  <script>
+    // TODO: Implement the radial coffee consumption chart using D3.js
+    // The data will be loaded from data.csv
+    // Consider using d3.arc() or polar coordinates for the radial layout
+  </script>
+</body>
+</html>`,
+      },
+      file2: {
+        name: "data.csv",
+        text: coffeeData,
       },
     },
   },
