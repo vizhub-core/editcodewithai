@@ -1,5 +1,7 @@
 import { VizFiles } from "@vizhub/viz-types";
 
+export type EditFormat = "whole" | "diff" | "diff-fenced" | "udiff";
+
 export type LlmFunction = (prompt: string) => Promise<{
   content: string;
   generationId?: string;
@@ -10,7 +12,7 @@ export interface PerformAiEditParams {
   files: VizFiles;
   llmFunction: LlmFunction;
   apiKey?: string;
-  baseURL?: string;
+  editFormat?: EditFormat;
 }
 
 export interface PerformAiEditResult {

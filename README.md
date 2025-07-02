@@ -10,6 +10,8 @@ See also [vizhub-benchmarks](https://github.com/vizhub-core/vizhub-benchmarks).
 
 The library is designed to be model-agnostic, allowing you to use any LLM provider while handling the prompt engineering, file parsing, and response processing for you.
 
+Edit formats inspired by [Aider](https://aider.chat/). See [Aider: Edit Formats](https://aider.chat/docs/more/edit-formats.html) for details.
+
 ## Installation
 
 ```bash
@@ -18,93 +20,79 @@ npm install editcodewithai
 
 ## Usage
 
+Here's a basic example of how to use `performAiEdit` to update a file:
+
 ```typescript
-import { performAiEdit } from "editcodewithai";
+import { performAiEdit, LlmFunction } from "editcodewithai";
 import { VizFiles } from "@vizhub/viz-types";
 
-// Define your LLM function that will process the prompt
-const myLlmFunction = async (prompt: string) => {
-  // Call your preferred LLM API here
-  // This example assumes using OpenRouter
-  const response = await fetch(
-    "https://openrouter.ai/api/v1/chat/completions",
-    {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${apiKey}`,
-      },
-      body: JSON.stringify({
-        model: "anthropic/claude-3.5-sonnet",
-        messages: [{ role: "user", content: prompt }],
-      }),
-    },
-  );
-
-  const data = await response.json();
+// Your function to call the LLM
+const myLlmFunction: LlmFunction = async (prompt: string) => {
+  // ... call your LLM API with the prompt
+  const llmResponse = "...";
   return {
-    content: data.choices[0].message.content,
-    generationId: data.id,
+    content: llmResponse, // The raw string response from the LLM
+    generationId: "some-generation-id", // Optional, for cost tracking with OpenRouter
   };
 };
 
-// Your files
 const files: VizFiles = {
   file1: {
     name: "index.js",
-    text: "console.log('Hello world');",
+    text: 'console.log("Hello, World!");',
   },
 };
 
-// Perform the AI edit
-const result = await performAiEdit({
-  prompt: "Update the code to use async/await",
-  files: files,
-  llmFunction: myLlmFunction,
-  apiKey: "your-openrouter-api-key",
-});
+const prompt = 'Change the greeting to "Hello, Universe!"';
 
-console.log(result.changedFiles);
+async function main() {
+  const result = await performAiEdit({
+    prompt,
+    files,
+    llmFunction: myLlmFunction,
+    editFormat: "diff", // Specify the desired edit format
+  });
+
+  console.log(result.changedFiles["file1"].text);
+  // Expected output: console.log("Hello, Universe!");
+}
+
+main();
 ```
 
-## API Reference
+## Edit Formats
 
-### performAiEdit(params)
+This library supports several "edit formats" that instruct the LLM on how to specify file changes. Different models may perform better with different formats. You can specify the format using the `editFormat` parameter in `performAiEdit`.
 
-The main function that processes files with an AI model and returns edited code.
+### `whole` (default)
 
-#### Parameters
+The LLM returns the complete, updated content for each file that needs changes. This is simple but can be inefficient for large files with small changes.
 
-| Parameter     | Type          | Description                                                       |
-| ------------- | ------------- | ----------------------------------------------------------------- |
-| `prompt`      | `string`      | Instructions for the AI on how to modify the code                 |
-| `files`       | `VizFiles`    | Object containing file information (see below)                    |
-| `llmFunction` | `LlmFunction` | Function that sends the prompt to an LLM and returns the response |
-| `apiKey`      | `string`      | OpenRouter API key for retrieving cost metadata                   |
+**Example:**
 
-The `VizFiles` type is a map of file IDs to file objects, where each file object has:
+````
+index.js
+```js
+console.log("Hello, Universe!");
+```
+````
 
-- `name`: The filename (e.g., "index.js")
-- `text`: The file contents as a string
+### `diff`
 
-The `LlmFunction` type is a function that takes a prompt string and returns a Promise with:
+The LLM returns a series of search-and-replace blocks. This is efficient as it only includes the changed portions of the files.
 
-- `content`: The LLM's response text
-- `generationId`: A unique ID for the generation (used for cost tracking)
+**Example:**
 
-#### Return Value
-
-The function returns an object with:
-
-| Property                 | Type       | Description                                |
-| ------------------------ | ---------- | ------------------------------------------ |
-| `changedFiles`           | `VizFiles` | Updated files with AI modifications        |
-| `openRouterGenerationId` | `string`   | ID of the generation from the LLM provider |
-| `upstreamCostCents`      | `number`   | Cost of the API call in cents              |
-| `provider`               | `string`   | The AI provider used (e.g., "openai")      |
-| `inputTokens`            | `number`   | Number of input tokens used                |
-| `outputTokens`           | `number`   | Number of output tokens generated          |
-| `promptTemplateVersion`  | `number`   | Version of the prompt template used        |
+````
+index.js
+```
+<<<<<<< SEARCH
+console.log("Hello, World!");
+=======
+console.log("Hello, Universe!");
+>>>>>>> REPLACE
+```
+````
 
 ### File Operations
 

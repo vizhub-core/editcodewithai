@@ -1,13 +1,26 @@
 import { parseMarkdownFiles, formatMarkdownFiles } from "llm-code-format";
-import type { PerformAiEditParams, PerformAiEditResult } from "./types";
+import type {
+  PerformAiEditParams,
+  PerformAiEditResult,
+  EditFormat,
+} from "./types";
 import { PROMPT_TEMPLATE_VERSION, assembleFullPrompt } from "./prompt";
 import { getGenerationMetadata } from "./metadata";
-import { prepareFilesForPrompt, mergeFileChanges } from "./fileUtils";
+import {
+  prepareFilesForPrompt,
+  mergeFileChanges,
+  parseDiffs,
+  applyDiffs,
+  parseDiffFenced,
+  parseUdiffs,
+  applyUdiffs,
+} from "./fileUtils";
 
 export type {
   LlmFunction,
   PerformAiEditParams,
   PerformAiEditResult,
+  EditFormat,
 } from "./types";
 
 const debug = false;
@@ -24,13 +37,14 @@ export async function performAiEdit({
   files,
   llmFunction,
   apiKey,
+  editFormat = "whole",
 }: PerformAiEditParams): Promise<PerformAiEditResult> {
   // 1. Format the existing files into the "markdown code block" format
   const preparedFiles = prepareFilesForPrompt(files);
   const filesContext = formatMarkdownFiles(preparedFiles);
 
   // 2. Assemble the final prompt
-  const fullPrompt = assembleFullPrompt({ filesContext, prompt });
+  const fullPrompt = assembleFullPrompt({ filesContext, prompt, editFormat });
   debug && console.log("[performAiEdit] fullPrompt:", fullPrompt);
 
   // 3. Invoke the model via the provided LLM function
@@ -38,10 +52,33 @@ export async function performAiEdit({
 
   // 4. We parse the output to figure out which files changed
   const resultString = result.content;
-  const parsed = parseMarkdownFiles(resultString, "bold");
+  let changedFiles;
 
-  // 5. Merge the changes into a new `Files` object
-  const changedFiles = mergeFileChanges(files, parsed.files);
+  switch (editFormat) {
+    case "whole": {
+      const parsed = parseMarkdownFiles(resultString, "bold");
+      changedFiles = mergeFileChanges(files, parsed.files);
+      break;
+    }
+    case "diff": {
+      const diffs = parseDiffs(resultString);
+      changedFiles = applyDiffs(files, diffs);
+      break;
+    }
+    case "diff-fenced": {
+      const diffs = parseDiffFenced(resultString);
+      changedFiles = applyDiffs(files, diffs);
+      break;
+    }
+    case "udiff": {
+      const hunks = parseUdiffs(resultString);
+      changedFiles = applyUdiffs(files, hunks);
+      break;
+    }
+    default:
+      // This will catch any unhandled or unknown edit formats.
+      throw new Error(`Unknown edit format: ${editFormat}`);
+  }
 
   // 6. Retrieve cost metadata for charging the user
   const openRouterGenerationId = result.generationId || "";

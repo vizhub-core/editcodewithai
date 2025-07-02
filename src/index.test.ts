@@ -48,8 +48,11 @@ describe("performAiEdit", () => {
     vi.clearAllMocks();
   });
 
-  it("should process files and return expected result", async () => {
-    const result = await performAiEdit(defaultParams);
+  it("should process files and return expected result with 'whole' format", async () => {
+    const result = await performAiEdit({
+      ...defaultParams,
+      editFormat: "whole",
+    });
 
     expect(result).toMatchObject({
       openRouterGenerationId: "test-generation-id",
@@ -62,6 +65,81 @@ describe("performAiEdit", () => {
 
     // Verify file content was updated
     expect(result.changedFiles["file1"].text).toBe("console.log('updated');");
+  });
+
+  it("should apply changes correctly with 'diff' format", async () => {
+    const mockDiffLlmFunction: LlmFunction = vi.fn().mockResolvedValue({
+      content: [
+        "test.js",
+        "```",
+        "<<<<<<< SEARCH",
+        'console.log("original");',
+        "=======",
+        'console.log("updated via diff");',
+        ">>>>>>> REPLACE",
+        "```",
+      ].join("\n"),
+      generationId: "test-diff-generation-id",
+    });
+
+    const result = await performAiEdit({
+      ...defaultParams,
+      llmFunction: mockDiffLlmFunction,
+      editFormat: "diff",
+    });
+
+    expect(result.changedFiles["file1"].text).toBe(
+      'console.log("updated via diff");',
+    );
+  });
+
+  it("should apply changes correctly with 'diff-fenced' format", async () => {
+    const mockDiffLlmFunction: LlmFunction = vi.fn().mockResolvedValue({
+      content: [
+        "```",
+        "test.js",
+        "<<<<<<< SEARCH",
+        'console.log("original");',
+        "=======",
+        'console.log("updated via diff-fenced");',
+        ">>>>>>> REPLACE",
+        "```",
+      ].join("\n"),
+      generationId: "test-diff-fenced-id",
+    });
+
+    const result = await performAiEdit({
+      ...defaultParams,
+      llmFunction: mockDiffLlmFunction,
+      editFormat: "diff-fenced",
+    });
+
+    expect(result.changedFiles["file1"].text).toBe(
+      'console.log("updated via diff-fenced");',
+    );
+  });
+
+  it("should apply changes correctly with 'udiff' format", async () => {
+    const mockLlmFunction: LlmFunction = vi.fn().mockResolvedValue({
+      content: [
+        "```diff",
+        "--- test.js",
+        "+++ test.js",
+        "@@ -1 +1 @@",
+        '-console.log("original");',
+        '+console.log("updated via udiff");',
+        "```",
+      ].join("\n"),
+      generationId: "test-udiff-id",
+    });
+    const result = await performAiEdit({
+      ...defaultParams,
+      llmFunction: mockLlmFunction,
+      editFormat: "udiff",
+    });
+    expect(result.changedFiles["file1"].text).toBe(
+      'console.log("updated via udiff");',
+    );
   });
 
   it("should handle file deletion when empty content is returned", async () => {

@@ -3,7 +3,7 @@ import { assembleFullPrompt, PROMPT_TEMPLATE_VERSION } from "./prompt";
 
 describe("prompt", () => {
   describe("assembleFullPrompt", () => {
-    it("should combine task, files context, and formatting instructions", () => {
+    it("should combine task, files context, and 'whole' formatting instructions by default", () => {
       const prompt = "Update the code";
       const filesContext = "**file.js**\n```js\nconsole.log('hello');\n```";
 
@@ -16,8 +16,54 @@ describe("prompt", () => {
       expect(result).toContain(filesContext);
       expect(result).toContain("## Formatting Instructions");
       expect(result).toContain(
-        "Suggest changes to the original files using this exact format",
+        "To suggest changes you MUST include the ENTIRE content of the updated file.",
       );
+    });
+
+    it("should use diff format instructions when specified", () => {
+      const prompt = "Fix bugs";
+      const filesContext = "**test.js**\n```js\nlet x = 1;\n```";
+
+      const result = assembleFullPrompt({
+        filesContext,
+        prompt,
+        editFormat: "diff",
+      });
+
+      expect(result).toContain("<<<<<<< SEARCH");
+      expect(result).not.toContain(
+        "To suggest changes you MUST include the ENTIRE content of the updated file.",
+      );
+    });
+
+    it("should use diff-fenced format instructions when specified", () => {
+      const prompt = "Fix bugs";
+      const filesContext = "**test.js**\n```js\nlet x = 1;\n```";
+
+      const result = assembleFullPrompt({
+        filesContext,
+        prompt,
+        editFormat: "diff-fenced",
+      });
+
+      expect(result).toContain("<<<<<<< SEARCH");
+      expect(result).toContain(
+        "search/replace block format with the file path inside the fence",
+      );
+    });
+
+    it("should use udiff format instructions when specified", () => {
+      const prompt = "Fix bugs";
+      const filesContext = "**test.js**\n```js\nlet x = 1;\n```";
+
+      const result = assembleFullPrompt({
+        filesContext,
+        prompt,
+        editFormat: "udiff",
+      });
+
+      expect(result).toContain("--- path/to/filename.ext");
+      expect(result).toContain("unified diff format");
     });
 
     it("should maintain the correct order of sections", () => {

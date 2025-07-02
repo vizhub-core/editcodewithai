@@ -80,3 +80,145 @@ export function mergeFileChanges(
 
   return changedFiles;
 }
+
+export interface Diff {
+  fileName: string;
+  search: string;
+  replace: string;
+}
+
+export function parseDiffs(responseText: string): Diff[] {
+  const diffs: Diff[] = [];
+  // This regex captures the file path, and the content of the SEARCH and REPLACE blocks.
+  const diffRegex =
+    /^(.+)\n```\n<<<<<<< SEARCH\n([\s\S]*?)\n=======\n([\s\S]*?)\n>>>>>>> REPLACE\n```/gm;
+
+  const matches = responseText.matchAll(diffRegex);
+
+  for (const match of matches) {
+    const [_, fileName, search, replace] = match;
+    diffs.push({
+      fileName: fileName.trim(),
+      search,
+      replace,
+    });
+  }
+
+  return diffs;
+}
+
+export function applyDiffs(originalFiles: VizFiles, diffs: Diff[]): VizFiles {
+  // Create a mutable copy of the files to avoid side effects.
+  const changedFiles: VizFiles = JSON.parse(JSON.stringify(originalFiles));
+
+  for (const diff of diffs) {
+    const fileId = Object.keys(changedFiles).find(
+      (id) => changedFiles[id].name === diff.fileName,
+    );
+
+    if (!fileId) {
+      throw new Error(`File not found: ${diff.fileName}`);
+    }
+
+    const file = changedFiles[fileId];
+    if (!file.text.includes(diff.search)) {
+      throw new Error(`Search block not found in file: ${diff.fileName}`);
+    }
+
+    // Replace only the first occurrence, which is the standard behavior of string.replace.
+    file.text = file.text.replace(diff.search, diff.replace);
+  }
+
+  return changedFiles;
+}
+
+export function parseDiffFenced(responseText: string): Diff[] {
+  const diffs: Diff[] = [];
+  const diffRegex =
+    /^```\n(.+)\n<<<<<<< SEARCH\n([\s\S]*?)\n=======\n([\s\S]*?)\n>>>>>>> REPLACE\n```/gm;
+
+  const matches = responseText.matchAll(diffRegex);
+
+  for (const match of matches) {
+    const [_, fileName, search, replace] = match;
+    diffs.push({
+      fileName: fileName.trim(),
+      search,
+      replace,
+    });
+  }
+
+  return diffs;
+}
+
+export interface UdiffHunk {
+  fileName: string;
+  original: string;
+  updated: string;
+}
+
+export function parseUdiffs(responseText: string): UdiffHunk[] {
+  const hunks: UdiffHunk[] = [];
+  const udiffFileRegex = /```diff\n--- (.+?)\n\+\+\+ \1\n([\s\S]+?)```/g;
+
+  let fileMatch;
+  while ((fileMatch = udiffFileRegex.exec(responseText)) !== null) {
+    const fileName = fileMatch[1].trim();
+    const allHunksContent = fileMatch[2];
+
+    const hunkParts = allHunksContent.split(/^@@ .* @@$/m).slice(1);
+
+    for (const part of hunkParts) {
+      if (part.trim() === "") continue;
+      const lines = part.trim().split("\n");
+
+      const original = [];
+      const updated = [];
+      for (const line of lines) {
+        if (line.startsWith("+")) {
+          updated.push(line.substring(1));
+        } else if (line.startsWith("-")) {
+          original.push(line.substring(1));
+        } else {
+          const content = line.startsWith(" ") ? line.substring(1) : line;
+          original.push(content);
+          updated.push(content);
+        }
+      }
+      hunks.push({
+        fileName: fileName,
+        original: original.join("\n"),
+        updated: updated.join("\n"),
+      });
+    }
+  }
+  return hunks;
+}
+
+export function applyUdiffs(
+  originalFiles: VizFiles,
+  hunks: UdiffHunk[],
+): VizFiles {
+  const changedFiles: VizFiles = JSON.parse(JSON.stringify(originalFiles));
+
+  for (const hunk of hunks) {
+    const fileId = Object.keys(changedFiles).find(
+      (id) => changedFiles[id].name === hunk.fileName,
+    );
+
+    if (!fileId) {
+      throw new Error(`File not found: ${hunk.fileName}`);
+    }
+
+    const file = changedFiles[fileId];
+    if (!file.text.includes(hunk.original)) {
+      throw new Error(
+        `Original content for hunk not found in file: ${hunk.fileName}`,
+      );
+    }
+
+    file.text = file.text.replace(hunk.original, hunk.updated);
+  }
+
+  return changedFiles;
+}
