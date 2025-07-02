@@ -41,21 +41,21 @@
   "homepage": "https://github.com/vizhub-core/editcodewithai#readme",
   "dependencies": {
     "@vizhub/viz-types": "^0.1.0",
-    "@vizhub/viz-utils": "^1.0.1",
-    "dotenv": "^16.5.0",
+    "@vizhub/viz-utils": "^1.1.0",
+    "dotenv": "^17.0.1",
     "llm-code-format": "^2.0.1"
   },
   "devDependencies": {
-    "@langchain/core": "^0.3.44",
-    "@langchain/openai": "^0.5.5",
-    "langchain": "^0.3.21",
+    "@langchain/core": "^0.3.61",
+    "@langchain/openai": "^0.5.16",
+    "langchain": "^0.3.29",
     "cors": "^2.8.5",
     "express": "^5.1.0",
-    "npm-check-updates": "^17.1.18",
-    "prettier": "^3.5.3",
-    "puppeteer": "^24.6.1",
+    "npm-check-updates": "^18.0.1",
+    "prettier": "^3.6.2",
+    "puppeteer": "^24.11.2",
     "ts-node": "^10.9.2",
     "typescript": "^5.8.3",
-    "vitest": "^3.1.1"
+    "vitest": "^3.2.4"
   }
 }
