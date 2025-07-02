@@ -71,10 +71,10 @@ The LLM returns the complete, updated content for each file that needs changes. 
 **Example:**
 
 ````
-**index.js**
-
+index.js
 ```js
 console.log("Hello, Universe!");
+```
 ````
 
 ### `diff`
@@ -87,30 +87,12 @@ The LLM returns a series of search-and-replace blocks. This is efficient as it o
 index.js
 ```
 <<<<<<< SEARCH
+console.log("Hello, World!");
+=======
 console.log("Hello, Universe!");
-
-- `name`: The filename (e.g., "index.js")
-- `text`: The file contents as a string
-
-The `LlmFunction` type is a function that takes a prompt string and returns a Promise with:
-
-- `content`: The LLM's response text
-- `generationId`: A unique ID for the generation (used for cost tracking)
-
-#### Return Value
-
-The function returns an object with:
-
-| Property                 | Type       | Description                                     |
-| ------------------------ | ---------- | ----------------------------------------------- |
-| `changedFiles`           | `VizFiles` | Updated files with AI modifications             |
-| `openRouterGenerationId` | `string`   | ID of the generation from the LLM provider      |
-| `upstreamCostCents`      | `number`   | Cost of the API call in cents                   |
-| `provider`               | `string`   | The AI provider used (e.g., "openai")           |
-| `inputTokens`            | `number`   | Number of input tokens used                     |
-| `outputTokens`           | `number`   | Number of output tokens generated               |
-| `promptTemplateVersion`  | `number`   | Version of the prompt template used             |
-| `rawResponse`            | `string`   | The raw, unmodified response string from the LLM. |
+>>>>>>> REPLACE
+```
+````
 
 ### File Operations
 
@@ -171,4 +153,3 @@ Please create an issue first before creating a PR to discuss the changes you wan
 ## License
 
 This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
-````
