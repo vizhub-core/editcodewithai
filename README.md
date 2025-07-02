@@ -10,6 +10,8 @@ See also [vizhub-benchmarks](https://github.com/vizhub-core/vizhub-benchmarks).
 
 The library is designed to be model-agnostic, allowing you to use any LLM provider while handling the prompt engineering, file parsing, and response processing for you.
 
+Edit formats inspired by [Aider](https://aider.chat/). See [Aider: Edit Formats](https://aider.chat/docs/more/edit-formats.html) for details.
+
 ## Installation
 
 ```bash
@@ -18,56 +20,74 @@ npm install editcodewithai
 
 ## Usage
 
+Here's a basic example of how to use `performAiEdit` to update a file:
+
 ```typescript
-import { performAiEdit } from "editcodewithai";
+import { performAiEdit, LlmFunction } from "editcodewithai";
 import { VizFiles } from "@vizhub/viz-types";
 
-// Define your LLM function that will process the prompt
-const myLlmFunction = async (prompt: string) => {
-  // Call your preferred LLM API here
-  // This example assumes using OpenRouter
-  const response = await fetch(
-    "https://openrouter.ai/api/v1/chat/completions",
-    {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${apiKey}`,
-      },
-      body: JSON.stringify({
-        model: "anthropic/claude-3.5-sonnet",
-        messages: [{ role: "user", content: prompt }],
-      }),
-    },
-  );
-
-  const data = await response.json();
+// Your function to call the LLM
+const myLlmFunction: LlmFunction = async (prompt: string) => {
+  // ... call your LLM API with the prompt
+  const llmResponse = "...";
   return {
-    content: data.choices[0].message.content,
-    generationId: data.id,
+    content: llmResponse, // The raw string response from the LLM
+    generationId: "some-generation-id", // Optional, for cost tracking with OpenRouter
   };
 };
 
-// Your files
 const files: VizFiles = {
   file1: {
     name: "index.js",
-    text: "console.log('Hello world');",
+    text: 'console.log("Hello, World!");',
   },
 };
 
-// Perform the AI edit
-const result = await performAiEdit({
-  prompt: "Update the code to use async/await",
-  files: files,
-  llmFunction: myLlmFunction,
-  apiKey: "your-openrouter-api-key",
-});
+const prompt = 'Change the greeting to "Hello, Universe!"';
 
-console.log(result.changedFiles);
+async function main() {
+  const result = await performAiEdit({
+    prompt,
+    files,
+    llmFunction: myLlmFunction,
+    editFormat: "diff", // Specify the desired edit format
+  });
+
+  console.log(result.changedFiles["file1"].text);
+  // Expected output: console.log("Hello, Universe!");
+}
+
+main();
 ```
 
-## API Reference
+## Edit Formats
+
+This library supports several "edit formats" that instruct the LLM on how to specify file changes. Different models may perform better with different formats. You can specify the format using the `editFormat` parameter in `performAiEdit`.
+
+### `whole` (default)
+
+The LLM returns the complete, updated content for each file that needs changes. This is simple but can be inefficient for large files with small changes.
+
+**Example:**
+
+````
+**index.js**
+
+```js
+console.log("Hello, Universe!");
+````
+
+### `diff`
+
+The LLM returns a series of search-and-replace blocks. This is efficient as it only includes the changed portions of the files.
+
+**Example:**
+
+````
+index.js
+```
+<<<<<<< SEARCH
+console.log("Hello, World!");
 
 ### performAiEdit(params)
 
@@ -165,3 +185,4 @@ Please create an issue first before creating a PR to discuss the changes you wan
 ## License
 
 This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
+````
