@@ -6,7 +6,12 @@ import type {
 } from "./types";
 import { PROMPT_TEMPLATE_VERSION, assembleFullPrompt } from "./prompt";
 import { getGenerationMetadata } from "./metadata";
-import { prepareFilesForPrompt, mergeFileChanges } from "./fileUtils";
+import {
+  prepareFilesForPrompt,
+  mergeFileChanges,
+  parseDiffs,
+  applyDiffs,
+} from "./fileUtils";
 
 export type {
   LlmFunction,
@@ -52,7 +57,11 @@ export async function performAiEdit({
       changedFiles = mergeFileChanges(files, parsed.files);
       break;
     }
-    case "diff":
+    case "diff": {
+      const diffs = parseDiffs(resultString);
+      changedFiles = applyDiffs(files, diffs);
+      break;
+    }
     case "diff-fenced":
     case "udiff": {
       // For diff-based formats, a different parsing and application logic is needed.

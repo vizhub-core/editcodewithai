@@ -88,12 +88,46 @@ export interface Diff {
 }
 
 export function parseDiffs(responseText: string): Diff[] {
-  throw new Error("Not implemented");
+  const diffs: Diff[] = [];
+  // This regex captures the file path, and the content of the SEARCH and REPLACE blocks.
+  const diffRegex =
+    /^(.+)\n```\n<<<<<<< SEARCH\n([\s\S]*?)\n=======\n([\s\S]*?)\n>>>>>>> REPLACE\n```/gm;
+
+  const matches = responseText.matchAll(diffRegex);
+
+  for (const match of matches) {
+    const [_, fileName, search, replace] = match;
+    diffs.push({
+      fileName: fileName.trim(),
+      search,
+      replace,
+    });
+  }
+
+  return diffs;
 }
 
-export function applyDiffs(
-  originalFiles: VizFiles,
-  diffs: Diff[],
-): VizFiles {
-  throw new Error("Not implemented");
+export function applyDiffs(originalFiles: VizFiles, diffs: Diff[]): VizFiles {
+  // Create a mutable copy of the files to avoid side effects.
+  const changedFiles: VizFiles = JSON.parse(JSON.stringify(originalFiles));
+
+  for (const diff of diffs) {
+    const fileId = Object.keys(changedFiles).find(
+      (id) => changedFiles[id].name === diff.fileName,
+    );
+
+    if (!fileId) {
+      throw new Error(`File not found: ${diff.fileName}`);
+    }
+
+    const file = changedFiles[fileId];
+    if (!file.text.includes(diff.search)) {
+      throw new Error(`Search block not found in file: ${diff.fileName}`);
+    }
+
+    // Replace only the first occurrence, which is the standard behavior of string.replace.
+    file.text = file.text.replace(diff.search, diff.replace);
+  }
+
+  return changedFiles;
 }

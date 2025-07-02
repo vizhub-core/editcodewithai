@@ -49,7 +49,10 @@ describe("performAiEdit", () => {
   });
 
   it("should process files and return expected result with 'whole' format", async () => {
-    const result = await performAiEdit({ ...defaultParams, editFormat: "whole" });
+    const result = await performAiEdit({
+      ...defaultParams,
+      editFormat: "whole",
+    });
 
     expect(result).toMatchObject({
       openRouterGenerationId: "test-generation-id",
@@ -92,7 +95,7 @@ describe("performAiEdit", () => {
     });
 
     expect(result.changedFiles["file1"].text).toBe(
-      "console.log('updated via diff');",
+      'console.log("updated via diff");',
     );
   });
 
