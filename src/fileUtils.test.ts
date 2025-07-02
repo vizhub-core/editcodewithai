@@ -3,6 +3,9 @@ import {
   shouldDeleteFile,
   prepareFilesForPrompt,
   mergeFileChanges,
+  parseDiffs,
+  applyDiffs,
+  Diff,
 } from "./fileUtils";
 import { VizFiles, FileCollection } from "@vizhub/viz-types";
 
@@ -151,6 +154,137 @@ describe("fileUtils", () => {
       const newFile = Object.values(result).find((f) => f.name === "new.js");
       expect(newFile).toBeDefined();
       expect(newFile?.text).toBe("console.log('new');");
+    });
+  });
+});
+
+describe("diff utilities", () => {
+  describe("parseDiffs", () => {
+    it("should parse a single valid diff block", () => {
+      const responseText = [
+        "path/to/file.js",
+        "```",
+        "<<<<<<< SEARCH",
+        "const x = 1;",
+        "=======",
+        "const x = 2;",
+        ">>>>>>> REPLACE",
+        "```",
+      ].join("\n");
+      const expected: Diff[] = [
+        {
+          fileName: "path/to/file.js",
+          search: "const x = 1;",
+          replace: "const x = 2;",
+        },
+      ];
+      expect(parseDiffs(responseText)).toEqual(expected);
+    });
+
+    it("should parse multiple diff blocks", () => {
+      const responseText = [
+        "file1.js",
+        "```",
+        "<<<<<<< SEARCH",
+        "hello",
+        "=======",
+        "world",
+        ">>>>>>> REPLACE",
+        "```",
+        "",
+        "file2.js",
+        "```",
+        "<<<<<<< SEARCH",
+        "foo",
+        "=======",
+        "bar",
+        ">>>>>>> REPLACE",
+        "```",
+      ].join("\n");
+      const expected: Diff[] = [
+        { fileName: "file1.js", search: "hello", replace: "world" },
+        { fileName: "file2.js", search: "foo", replace: "bar" },
+      ];
+      expect(parseDiffs(responseText)).toEqual(expected);
+    });
+
+    it("should handle multiline search and replace", () => {
+      const searchBlock = `function hello() {\n  console.log("hello");\n}`;
+      const replaceBlock = `function goodbye() {\n  console.log("goodbye");\n}`;
+      const responseText = [
+        "path/to/file.js",
+        "```",
+        "<<<<<<< SEARCH",
+        searchBlock,
+        "=======",
+        replaceBlock,
+        ">>>>>>> REPLACE",
+        "```",
+      ].join("\n");
+      const expected: Diff[] = [
+        {
+          fileName: "path/to/file.js",
+          search: searchBlock,
+          replace: replaceBlock,
+        },
+      ];
+      expect(parseDiffs(responseText)).toEqual(expected);
+    });
+
+    it("should return an empty array for invalid format", () => {
+      const invalidDiff = "this is not a diff";
+      expect(parseDiffs(invalidDiff)).toEqual([]);
+    });
+  });
+
+  describe("applyDiffs", () => {
+    it("should apply a diff to the correct file", () => {
+      const files: VizFiles = {
+        file1: { name: "path/to/file.js", text: "const x = 1;" },
+        file2: { name: "another/file.js", text: "const y = 1;" },
+      };
+      const diffs: Diff[] = [
+        {
+          fileName: "path/to/file.js",
+          search: "const x = 1;",
+          replace: "const x = 2;",
+        },
+      ];
+      const updatedFiles = applyDiffs(files, diffs);
+      expect(updatedFiles.file1.text).toBe("const x = 2;");
+      expect(updatedFiles.file2.text).toBe("const y = 1;");
+    });
+
+    it("should throw an error if file not found", () => {
+      const files: VizFiles = {
+        file1: { name: "path/to/file.js", text: "const x = 1;" },
+      };
+      const diffs: Diff[] = [
+        {
+          fileName: "nonexistent.js",
+          search: "const x = 1;",
+          replace: "const x = 2;",
+        },
+      ];
+      expect(() => applyDiffs(files, diffs)).toThrow(
+        "File not found: nonexistent.js",
+      );
+    });
+
+    it("should throw an error if search block not found", () => {
+      const files: VizFiles = {
+        file1: { name: "path/to/file.js", text: "const x = 1;" },
+      };
+      const diffs: Diff[] = [
+        {
+          fileName: "path/to/file.js",
+          search: "const y = 1;",
+          replace: "const y = 2;",
+        },
+      ];
+      expect(() => applyDiffs(files, diffs)).toThrow(
+        "Search block not found in file: path/to/file.js",
+      );
     });
   });
 });

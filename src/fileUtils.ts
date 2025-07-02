@@ -80,3 +80,20 @@ export function mergeFileChanges(
 
   return changedFiles;
 }
+
+export interface Diff {
+  fileName: string;
+  search: string;
+  replace: string;
+}
+
+export function parseDiffs(responseText: string): Diff[] {
+  throw new Error("Not implemented");
+}
+
+export function applyDiffs(
+  originalFiles: VizFiles,
+  diffs: Diff[],
+): VizFiles {
+  throw new Error("Not implemented");
+}

@@ -66,12 +66,34 @@ describe("performAiEdit", () => {
 
   it("should throw an error for unimplemented edit formats", async () => {
     await expect(
-      performAiEdit({ ...defaultParams, editFormat: "diff" }),
-    ).rejects.toThrow('Edit format "diff" is not yet implemented.');
-
-    await expect(
       performAiEdit({ ...defaultParams, editFormat: "udiff" }),
     ).rejects.toThrow('Edit format "udiff" is not yet implemented.');
+  });
+
+  it("should apply changes correctly with 'diff' format", async () => {
+    const mockDiffLlmFunction: LlmFunction = vi.fn().mockResolvedValue({
+      content: [
+        "test.js",
+        "```",
+        "<<<<<<< SEARCH",
+        'console.log("original");',
+        "=======",
+        'console.log("updated via diff");',
+        ">>>>>>> REPLACE",
+        "```",
+      ].join("\n"),
+      generationId: "test-diff-generation-id",
+    });
+
+    const result = await performAiEdit({
+      ...defaultParams,
+      llmFunction: mockDiffLlmFunction,
+      editFormat: "diff",
+    });
+
+    expect(result.changedFiles["file1"].text).toBe(
+      "console.log('updated via diff');",
+    );
   });
 
   it("should handle file deletion when empty content is returned", async () => {
