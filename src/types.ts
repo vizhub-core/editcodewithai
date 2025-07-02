@@ -12,7 +12,6 @@ export interface PerformAiEditParams {
   files: VizFiles;
   llmFunction: LlmFunction;
   apiKey?: string;
-  baseURL?: string;
   editFormat?: EditFormat;
 }
 

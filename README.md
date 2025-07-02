@@ -87,22 +87,7 @@ The LLM returns a series of search-and-replace blocks. This is efficient as it o
 index.js
 ```
 <<<<<<< SEARCH
-console.log("Hello, World!");
-
-### performAiEdit(params)
-
-The main function that processes files with an AI model and returns edited code.
-
-#### Parameters
-
-| Parameter     | Type          | Description                                                       |
-| ------------- | ------------- | ----------------------------------------------------------------- |
-| `prompt`      | `string`      | Instructions for the AI on how to modify the code                 |
-| `files`       | `VizFiles`    | Object containing file information (see below)                    |
-| `llmFunction` | `LlmFunction` | Function that sends the prompt to an LLM and returns the response |
-| `apiKey`      | `string`      | OpenRouter API key for retrieving cost metadata                   |
-
-The `VizFiles` type is a map of file IDs to file objects, where each file object has:
+console.log("Hello, Universe!");
 
 - `name`: The filename (e.g., "index.js")
 - `text`: The file contents as a string
@@ -116,15 +101,16 @@ The `LlmFunction` type is a function that takes a prompt string and returns a Pr
 
 The function returns an object with:
 
-| Property                 | Type       | Description                                |
-| ------------------------ | ---------- | ------------------------------------------ |
-| `changedFiles`           | `VizFiles` | Updated files with AI modifications        |
-| `openRouterGenerationId` | `string`   | ID of the generation from the LLM provider |
-| `upstreamCostCents`      | `number`   | Cost of the API call in cents              |
-| `provider`               | `string`   | The AI provider used (e.g., "openai")      |
-| `inputTokens`            | `number`   | Number of input tokens used                |
-| `outputTokens`           | `number`   | Number of output tokens generated          |
-| `promptTemplateVersion`  | `number`   | Version of the prompt template used        |
+| Property                 | Type       | Description                                     |
+| ------------------------ | ---------- | ----------------------------------------------- |
+| `changedFiles`           | `VizFiles` | Updated files with AI modifications             |
+| `openRouterGenerationId` | `string`   | ID of the generation from the LLM provider      |
+| `upstreamCostCents`      | `number`   | Cost of the API call in cents                   |
+| `provider`               | `string`   | The AI provider used (e.g., "openai")           |
+| `inputTokens`            | `number`   | Number of input tokens used                     |
+| `outputTokens`           | `number`   | Number of output tokens generated               |
+| `promptTemplateVersion`  | `number`   | Version of the prompt template used             |
+| `rawResponse`            | `string`   | The raw, unmodified response string from the LLM. |
 
 ### File Operations
 
