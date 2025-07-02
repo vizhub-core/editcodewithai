@@ -48,8 +48,8 @@ describe("performAiEdit", () => {
     vi.clearAllMocks();
   });
 
-  it("should process files and return expected result", async () => {
-    const result = await performAiEdit(defaultParams);
+  it("should process files and return expected result with 'whole' format", async () => {
+    const result = await performAiEdit({ ...defaultParams, editFormat: "whole" });
 
     expect(result).toMatchObject({
       openRouterGenerationId: "test-generation-id",
@@ -62,6 +62,16 @@ describe("performAiEdit", () => {
 
     // Verify file content was updated
     expect(result.changedFiles["file1"].text).toBe("console.log('updated');");
+  });
+
+  it("should throw an error for unimplemented edit formats", async () => {
+    await expect(
+      performAiEdit({ ...defaultParams, editFormat: "diff" }),
+    ).rejects.toThrow('Edit format "diff" is not yet implemented.');
+
+    await expect(
+      performAiEdit({ ...defaultParams, editFormat: "udiff" }),
+    ).rejects.toThrow('Edit format "udiff" is not yet implemented.');
   });
 
   it("should handle file deletion when empty content is returned", async () => {
