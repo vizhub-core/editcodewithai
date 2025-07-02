@@ -67,12 +67,6 @@ describe("performAiEdit", () => {
     expect(result.changedFiles["file1"].text).toBe("console.log('updated');");
   });
 
-  it("should throw an error for unimplemented edit formats", async () => {
-    await expect(
-      performAiEdit({ ...defaultParams, editFormat: "udiff" }),
-    ).rejects.toThrow('Edit format "udiff" is not yet implemented.');
-  });
-
   it("should apply changes correctly with 'diff' format", async () => {
     const mockDiffLlmFunction: LlmFunction = vi.fn().mockResolvedValue({
       content: [
@@ -96,6 +90,55 @@ describe("performAiEdit", () => {
 
     expect(result.changedFiles["file1"].text).toBe(
       'console.log("updated via diff");',
+    );
+  });
+
+  it("should apply changes correctly with 'diff-fenced' format", async () => {
+    const mockDiffLlmFunction: LlmFunction = vi.fn().mockResolvedValue({
+      content: [
+        "```",
+        "test.js",
+        "<<<<<<< SEARCH",
+        'console.log("original");',
+        "=======",
+        'console.log("updated via diff-fenced");',
+        ">>>>>>> REPLACE",
+        "```",
+      ].join("\n"),
+      generationId: "test-diff-fenced-id",
+    });
+
+    const result = await performAiEdit({
+      ...defaultParams,
+      llmFunction: mockDiffLlmFunction,
+      editFormat: "diff-fenced",
+    });
+
+    expect(result.changedFiles["file1"].text).toBe(
+      'console.log("updated via diff-fenced");',
+    );
+  });
+
+  it("should apply changes correctly with 'udiff' format", async () => {
+    const mockLlmFunction: LlmFunction = vi.fn().mockResolvedValue({
+      content: [
+        "```diff",
+        "--- test.js",
+        "+++ test.js",
+        "@@ -1 +1 @@",
+        '-console.log("original");',
+        '+console.log("updated via udiff");',
+        "```",
+      ].join("\n"),
+      generationId: "test-udiff-id",
+    });
+    const result = await performAiEdit({
+      ...defaultParams,
+      llmFunction: mockLlmFunction,
+      editFormat: "udiff",
+    });
+    expect(result.changedFiles["file1"].text).toBe(
+      'console.log("updated via udiff");',
     );
   });
 

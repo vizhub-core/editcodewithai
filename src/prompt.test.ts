@@ -36,6 +36,36 @@ describe("prompt", () => {
       );
     });
 
+    it("should use diff-fenced format instructions when specified", () => {
+      const prompt = "Fix bugs";
+      const filesContext = "**test.js**\n```js\nlet x = 1;\n```";
+
+      const result = assembleFullPrompt({
+        filesContext,
+        prompt,
+        editFormat: "diff-fenced",
+      });
+
+      expect(result).toContain("<<<<<<< SEARCH");
+      expect(result).toContain(
+        "search/replace block format with the file path inside the fence",
+      );
+    });
+
+    it("should use udiff format instructions when specified", () => {
+      const prompt = "Fix bugs";
+      const filesContext = "**test.js**\n```js\nlet x = 1;\n```";
+
+      const result = assembleFullPrompt({
+        filesContext,
+        prompt,
+        editFormat: "udiff",
+      });
+
+      expect(result).toContain("--- path/to/filename.ext");
+      expect(result).toContain("unified diff format");
+    });
+
     it("should maintain the correct order of sections", () => {
       const prompt = "Fix bugs";
       const filesContext = "**test.js**\n```js\nlet x = 1;\n```";

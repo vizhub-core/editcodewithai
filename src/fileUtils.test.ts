@@ -6,6 +6,10 @@ import {
   parseDiffs,
   applyDiffs,
   Diff,
+  parseDiffFenced,
+  UdiffHunk,
+  parseUdiffs,
+  applyUdiffs,
 } from "./fileUtils";
 import { VizFiles, FileCollection } from "@vizhub/viz-types";
 
@@ -284,6 +288,162 @@ describe("diff utilities", () => {
       ];
       expect(() => applyDiffs(files, diffs)).toThrow(
         "Search block not found in file: path/to/file.js",
+      );
+    });
+  });
+});
+
+describe("diff-fenced utilities", () => {
+  describe("parseDiffFenced", () => {
+    it("should parse a single valid diff-fenced block", () => {
+      const responseText = [
+        "```",
+        "path/to/file.js",
+        "<<<<<<< SEARCH",
+        "const x = 1;",
+        "=======",
+        "const x = 2;",
+        ">>>>>>> REPLACE",
+        "```",
+      ].join("\n");
+      const expected: Diff[] = [
+        {
+          fileName: "path/to/file.js",
+          search: "const x = 1;",
+          replace: "const x = 2;",
+        },
+      ];
+      expect(parseDiffFenced(responseText)).toEqual(expected);
+    });
+  });
+});
+
+describe("udiff utilities", () => {
+  describe("parseUdiffs", () => {
+    it("should parse a simple udiff with addition and deletion", () => {
+      const responseText = [
+        "```diff",
+        "--- file.js",
+        "+++ file.js",
+        "@@ -1,3 +1,3 @@",
+        " line 1",
+        "-line 2",
+        "+line two",
+        " line 3",
+        "```",
+      ].join("\n");
+      const expected: UdiffHunk[] = [
+        {
+          fileName: "file.js",
+          original: "line 1\nline 2\nline 3",
+          updated: "line 1\nline two\nline 3",
+        },
+      ];
+      expect(parseUdiffs(responseText)).toEqual(expected);
+    });
+
+    it("should parse a udiff with only additions", () => {
+      const responseText = [
+        "```diff",
+        "--- file.js",
+        "+++ file.js",
+        "@@ -1,2 +1,3 @@",
+        " line 1",
+        "+new line",
+        " line 2",
+        "```",
+      ].join("\n");
+      const expected: UdiffHunk[] = [
+        {
+          fileName: "file.js",
+          original: "line 1\nline 2",
+          updated: "line 1\nnew line\nline 2",
+        },
+      ];
+      expect(parseUdiffs(responseText)).toEqual(expected);
+    });
+
+    it("should parse a udiff with only deletions", () => {
+      const responseText = [
+        "```diff",
+        "--- file.js",
+        "+++ file.js",
+        "@@ -1,3 +1,2 @@",
+        " line 1",
+        "-line to delete",
+        " line 2",
+        "```",
+      ].join("\n");
+      const expected: UdiffHunk[] = [
+        {
+          fileName: "file.js",
+          original: "line 1\nline to delete\nline 2",
+          updated: "line 1\nline 2",
+        },
+      ];
+      expect(parseUdiffs(responseText)).toEqual(expected);
+    });
+
+    it("should parse multiple hunks for the same file", () => {
+      const responseText = [
+        "```diff",
+        "--- file.js",
+        "+++ file.js",
+        "@@ -1,3 +1,3 @@",
+        " context 1",
+        "-delete 1",
+        "+add 1",
+        "@@ -10,3 +10,3 @@",
+        " context 2",
+        "-delete 2",
+        "+add 2",
+        "```",
+      ].join("\n");
+      const expected: UdiffHunk[] = [
+        {
+          fileName: "file.js",
+          original: "context 1\ndelete 1",
+          updated: "context 1\nadd 1",
+        },
+        {
+          fileName: "file.js",
+          original: "context 2\ndelete 2",
+          updated: "context 2\nadd 2",
+        },
+      ];
+      expect(parseUdiffs(responseText)).toEqual(expected);
+    });
+  });
+
+  describe("applyUdiffs", () => {
+    it("should apply a udiff hunk", () => {
+      const files: VizFiles = {
+        file1: { name: "file.js", text: " line 1\nline 2\n line 3" },
+      };
+      const hunks: UdiffHunk[] = [
+        {
+          fileName: "file.js",
+          original: " line 1\nline 2\n line 3",
+          updated: " line 1\nline two\n line 3",
+        },
+      ];
+      const updatedFiles = applyUdiffs(files, hunks);
+      expect(updatedFiles.file1.text).toBe(" line 1\nline two\n line 3");
+    });
+
+    it("should throw an error if original content not found", () => {
+      const files: VizFiles = {
+        file1: { name: "file.js", text: "some other content" },
+      };
+      const hunks: UdiffHunk[] = [
+        {
+          fileName: "file.js",
+          original: " line 1\nline 2\n line 3",
+          updated: " line 1\nline two\n line 3",
+        },
+      ];
+      expect(() => applyUdiffs(files, hunks)).toThrow(
+        "Original content for hunk not found in file: file.js",
       );
     });
   });

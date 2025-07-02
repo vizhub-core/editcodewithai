@@ -11,6 +11,9 @@ import {
   mergeFileChanges,
   parseDiffs,
   applyDiffs,
+  parseDiffFenced,
+  parseUdiffs,
+  applyUdiffs,
 } from "./fileUtils";
 
 export type {
@@ -62,13 +65,15 @@ export async function performAiEdit({
       changedFiles = applyDiffs(files, diffs);
       break;
     }
-    case "diff-fenced":
+    case "diff-fenced": {
+      const diffs = parseDiffFenced(resultString);
+      changedFiles = applyDiffs(files, diffs);
+      break;
+    }
     case "udiff": {
-      // For diff-based formats, a different parsing and application logic is needed.
-      // This would involve parsing the diff format from the LLM response
-      // and then applying it to the original files.
-      // A new utility function, e.g., `applyDiffs`, would be required in `fileUtils.ts`.
-      throw new Error(`Edit format "${editFormat}" is not yet implemented.`);
+      const hunks = parseUdiffs(resultString);
+      changedFiles = applyUdiffs(files, hunks);
+      break;
     }
     default:
       // This will catch any unhandled or unknown edit formats.
