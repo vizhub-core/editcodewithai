@@ -23,7 +23,7 @@ npm install editcodewithai
 Here's a basic example of how to use `performAiEdit` to update a file:
 
 ```typescript
-import { performAiEdit, LlmFunction } from "editcodewithai";
+import { performAiEdit, FORMAT_INSTRUCTIONS, LlmFunction } from "editcodewithai";
 import { VizFiles } from "@vizhub/viz-types";
 
 // Your function to call the LLM
@@ -101,6 +101,45 @@ The library handles several file operations automatically:
 - **Updating existing files**: When the AI modifies a file's content
 - **Creating new files**: When the AI suggests new files to add
 - **Deleting files**: When the AI returns empty content for a file
+
+## Format Instructions
+
+The library exports `FORMAT_INSTRUCTIONS` which contains the exact prompt instructions used for each edit format. This can be useful if you want to:
+
+- Use the formatting instructions in your own custom prompts
+- Understand exactly what instructions are sent to the LLM for each format
+- Build your own AI editing tools using the same proven prompt patterns
+
+### Usage
+
+```typescript
+import { FORMAT_INSTRUCTIONS } from "editcodewithai";
+
+// Access instructions for a specific format
+console.log(FORMAT_INSTRUCTIONS.diff);
+console.log(FORMAT_INSTRUCTIONS.whole);
+console.log(FORMAT_INSTRUCTIONS["diff-fenced"]);
+console.log(FORMAT_INSTRUCTIONS.udiff);
+
+// Use in your own prompts
+const customPrompt = `
+${FORMAT_INSTRUCTIONS.diff}
+
+Please update the following code to add error handling:
+${yourCodeHere}
+`;
+```
+
+### Available Formats
+
+The `FORMAT_INSTRUCTIONS` object contains instructions for these edit formats:
+
+- **`whole`**: Instructions for returning complete file contents
+- **`diff`**: Instructions for search-and-replace blocks  
+- **`diff-fenced`**: Instructions for search-and-replace blocks with file paths inside code fences
+- **`udiff`**: Instructions for unified diff format
+
+Each instruction set is a string containing detailed formatting guidelines that help ensure the LLM produces properly structured output that can be parsed by the library.
 
 ## Similar Projects
 

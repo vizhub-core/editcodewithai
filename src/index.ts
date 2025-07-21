@@ -4,7 +4,7 @@ import type {
   PerformAiEditResult,
   EditFormat,
 } from "./types";
-import { PROMPT_TEMPLATE_VERSION, assembleFullPrompt } from "./prompt";
+import { PROMPT_TEMPLATE_VERSION, assembleFullPrompt, FORMAT_INSTRUCTIONS } from "./prompt";
 import { getGenerationMetadata } from "./metadata";
 import {
   prepareFilesForPrompt,
@@ -22,6 +22,8 @@ export type {
   PerformAiEditResult,
   EditFormat,
 } from "./types";
+
+export { FORMAT_INSTRUCTIONS };
 
 const debug = false;
 
