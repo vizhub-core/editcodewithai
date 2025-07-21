@@ -23,7 +23,11 @@ npm install editcodewithai
 Here's a basic example of how to use `performAiEdit` to update a file:
 
 ```typescript
-import { performAiEdit, FORMAT_INSTRUCTIONS, LlmFunction } from "editcodewithai";
+import {
+  performAiEdit,
+  FORMAT_INSTRUCTIONS,
+  LlmFunction,
+} from "editcodewithai";
 import { VizFiles } from "@vizhub/viz-types";
 
 // Your function to call the LLM
@@ -135,7 +139,7 @@ ${yourCodeHere}
 The `FORMAT_INSTRUCTIONS` object contains instructions for these edit formats:
 
 - **`whole`**: Instructions for returning complete file contents
-- **`diff`**: Instructions for search-and-replace blocks  
+- **`diff`**: Instructions for search-and-replace blocks
 - **`diff-fenced`**: Instructions for search-and-replace blocks with file paths inside code fences
 - **`udiff`**: Instructions for unified diff format
 

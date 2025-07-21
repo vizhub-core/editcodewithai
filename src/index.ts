@@ -4,7 +4,11 @@ import type {
   PerformAiEditResult,
   EditFormat,
 } from "./types";
-import { PROMPT_TEMPLATE_VERSION, assembleFullPrompt, FORMAT_INSTRUCTIONS } from "./prompt";
+import {
+  PROMPT_TEMPLATE_VERSION,
+  assembleFullPrompt,
+  FORMAT_INSTRUCTIONS,
+} from "./prompt";
 import { getGenerationMetadata } from "./metadata";
 import {
   prepareFilesForPrompt,
