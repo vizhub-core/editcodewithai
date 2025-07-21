@@ -191,23 +191,25 @@ describe("FORMAT_INSTRUCTIONS", () => {
   it("should be exported and contain all edit formats", () => {
     expect(FORMAT_INSTRUCTIONS).toBeDefined();
     expect(typeof FORMAT_INSTRUCTIONS).toBe("object");
-    
+
     // Check that all expected edit formats are present
     expect(FORMAT_INSTRUCTIONS).toHaveProperty("whole");
     expect(FORMAT_INSTRUCTIONS).toHaveProperty("diff");
     expect(FORMAT_INSTRUCTIONS).toHaveProperty("diff-fenced");
     expect(FORMAT_INSTRUCTIONS).toHaveProperty("udiff");
-    
+
     // Check that each format has string instructions
     expect(typeof FORMAT_INSTRUCTIONS.whole).toBe("string");
     expect(typeof FORMAT_INSTRUCTIONS.diff).toBe("string");
     expect(typeof FORMAT_INSTRUCTIONS["diff-fenced"]).toBe("string");
     expect(typeof FORMAT_INSTRUCTIONS.udiff).toBe("string");
-    
+
     // Verify the instructions contain expected content
     expect(FORMAT_INSTRUCTIONS.whole).toContain("Formatting Instructions");
     expect(FORMAT_INSTRUCTIONS.diff).toContain("search/replace block format");
-    expect(FORMAT_INSTRUCTIONS["diff-fenced"]).toContain("file path inside the fence");
+    expect(FORMAT_INSTRUCTIONS["diff-fenced"]).toContain(
+      "file path inside the fence",
+    );
     expect(FORMAT_INSTRUCTIONS.udiff).toContain("unified diff format");
   });
 });
