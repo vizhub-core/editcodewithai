@@ -27,7 +27,19 @@ export type {
   EditFormat,
 } from "./types";
 
-export { FORMAT_INSTRUCTIONS };
+export {
+  FORMAT_INSTRUCTIONS,
+  mergeFileChanges,
+  prepareFilesForPrompt,
+  parseDiffs,
+  applyDiffs,
+  parseDiffFenced,
+  parseUdiffs,
+  applyUdiffs,
+  assembleFullPrompt,
+  getGenerationMetadata,
+  PROMPT_TEMPLATE_VERSION,
+};
 
 const debug = false;
 
