@@ -7,7 +7,7 @@ export const PROMPT_TEMPLATE_VERSION = 1;
 const TASK = (prompt: string) => `## Your Task\n\n${prompt}`;
 const FILES = (filesContext: string) => `## Original Files\n\n${filesContext}`;
 
-const FORMAT_INSTRUCTIONS: Record<EditFormat, string> = {
+export const FORMAT_INSTRUCTIONS: Record<EditFormat, string> = {
   whole: [
     "## Formatting Instructions\n\n",
     "Suggest changes to the original files using this exact format:\n\n",
