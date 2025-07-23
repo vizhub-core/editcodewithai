@@ -1,9 +1,5 @@
 import { parseMarkdownFiles, formatMarkdownFiles } from "llm-code-format";
-import type {
-  PerformAiEditParams,
-  PerformAiEditResult,
-  EditFormat,
-} from "./types";
+import type { PerformAiEditParams, PerformAiEditResult } from "./types";
 import {
   PROMPT_TEMPLATE_VERSION,
   assembleFullPrompt,
