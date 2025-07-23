@@ -22,7 +22,9 @@ export const FORMAT_INSTRUCTIONS: Record<EditFormat, string> = {
     "**fileToDelete.js**\n\n```\n```\n\n",
     "For D3 logic, make sure it remains idempotent (use data joins), ",
     "and prefer function signatures like `someFunction(selection, options)` ",
-    "where `selection` is a D3 selection and `options` is an object.\n\n",
+    "where `selection` is a D3 selection and `options` is an object. ",
+    'Only import from the top-level `"d3"` module, not from submodules ',
+    '(e.g. imports from `"d3-scale"` or `"d3-shape"` are not supported).\n\n',
   ].join(""),
   diff: [
     "## Formatting Instructions\n\n",
