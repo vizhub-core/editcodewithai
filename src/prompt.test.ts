@@ -71,10 +71,10 @@ describe("prompt", () => {
       const filesContext = "**file.js**\n```js\nconsole.log('hello');\n```";
       const imageFiles = ["photo.jpg", "icon.png"];
 
-      const result = assembleFullPrompt({ 
-        filesContext, 
-        prompt, 
-        imageFiles 
+      const result = assembleFullPrompt({
+        filesContext,
+        prompt,
+        imageFiles,
       });
 
       expect(result).toContain("Image files available:");
@@ -96,10 +96,10 @@ describe("prompt", () => {
       const filesContext = "**file.js**\n```js\nconsole.log('hello');\n```";
       const imageFiles: string[] = [];
 
-      const result = assembleFullPrompt({ 
-        filesContext, 
-        prompt, 
-        imageFiles 
+      const result = assembleFullPrompt({
+        filesContext,
+        prompt,
+        imageFiles,
       });
 
       expect(result).not.toContain("Image files available:");
@@ -130,14 +130,16 @@ describe("prompt", () => {
       const filesContext = "**test.js**\n```js\nlet x = 1;\n```";
       const imageFiles = ["test.png"];
 
-      const result = assembleFullPrompt({ 
-        filesContext, 
-        prompt, 
-        imageFiles 
+      const result = assembleFullPrompt({
+        filesContext,
+        prompt,
+        imageFiles,
       });
 
       // Image files should be at the end
-      expect(result).toMatch(/## Formatting Instructions[\s\S]*Image files available:/);
+      expect(result).toMatch(
+        /## Formatting Instructions[\s\S]*Image files available:/,
+      );
     });
   });
 

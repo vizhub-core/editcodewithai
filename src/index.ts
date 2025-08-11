@@ -60,11 +60,11 @@ export async function performAiEdit({
   const filesContext = formatMarkdownFiles(preparedResult.files);
 
   // 2. Assemble the final prompt
-  const fullPrompt = assembleFullPrompt({ 
-    filesContext, 
-    prompt, 
-    editFormat, 
-    imageFiles: preparedResult.imageFiles 
+  const fullPrompt = assembleFullPrompt({
+    filesContext,
+    prompt,
+    editFormat,
+    imageFiles: preparedResult.imageFiles,
   });
   debug && console.log("[performAiEdit] fullPrompt:", fullPrompt);
 

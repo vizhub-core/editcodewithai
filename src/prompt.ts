@@ -78,13 +78,16 @@ export function assembleFullPrompt({
   imageFiles?: string[];
 }) {
   const FORMAT = FORMAT_INSTRUCTIONS[editFormat];
-  
+
   // Add image files list if there are any
   let imageFilesSection = "";
   if (imageFiles.length > 0) {
-    imageFilesSection = "\nImage files available:\n\n" + 
-      imageFiles.map(fileName => ` * \`${fileName}\``).join("\n");
+    imageFilesSection =
+      "\nImage files available:\n\n" +
+      imageFiles.map((fileName) => ` * \`${fileName}\``).join("\n");
   }
-  
-  return [TASK(prompt), FILES(filesContext), FORMAT + imageFilesSection].join("\n\n");
+
+  return [TASK(prompt), FILES(filesContext), FORMAT + imageFilesSection].join(
+    "\n\n",
+  );
 }

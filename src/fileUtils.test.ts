@@ -80,12 +80,12 @@ describe("fileUtils", () => {
       };
 
       const result = prepareFilesForPrompt(files);
-      
+
       expect(result.files).toHaveProperty("script.js");
       expect(result.files).toHaveProperty("style.css");
       expect(result.files).not.toHaveProperty("photo.png");
       expect(result.files).not.toHaveProperty("icon.svg");
-      
+
       expect(result.imageFiles).toEqual(["photo.png", "icon.svg"]);
     });
 
@@ -142,7 +142,7 @@ describe("fileUtils", () => {
       };
 
       const result = prepareFilesForPrompt(files);
-      
+
       expect(Object.keys(result.files)).toHaveLength(2);
       expect(result.imageFiles).toEqual([]);
     });
@@ -154,7 +154,7 @@ describe("fileUtils", () => {
       };
 
       const result = prepareFilesForPrompt(files);
-      
+
       expect(Object.keys(result.files)).toHaveLength(0);
       expect(result.imageFiles).toEqual(["photo.jpg", "icon.png"]);
     });
