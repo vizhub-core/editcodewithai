@@ -13,7 +13,45 @@ import {
 } from "./fileUtils";
 import { VizFiles, FileCollection } from "@vizhub/viz-types";
 
+import { describe, it, expect } from "vitest";
+import {
+  shouldDeleteFile,
+  prepareFilesForPrompt,
+  isImageFile,
+  mergeFileChanges,
+  parseDiffs,
+  applyDiffs,
+  Diff,
+  parseDiffFenced,
+  UdiffHunk,
+  parseUdiffs,
+  applyUdiffs,
+} from "./fileUtils";
+import { VizFiles, FileCollection } from "@vizhub/viz-types";
+
 describe("fileUtils", () => {
+  describe("isImageFile", () => {
+    it("should identify image files by extension", () => {
+      expect(isImageFile("photo.png")).toBe(true);
+      expect(isImageFile("Photo.PNG")).toBe(true);
+      expect(isImageFile("image.jpg")).toBe(true);
+      expect(isImageFile("image.jpeg")).toBe(true);
+      expect(isImageFile("icon.gif")).toBe(true);
+      expect(isImageFile("bitmap.bmp")).toBe(true);
+      expect(isImageFile("vector.svg")).toBe(true);
+      expect(isImageFile("modern.webp")).toBe(true);
+    });
+
+    it("should not identify non-image files", () => {
+      expect(isImageFile("script.js")).toBe(false);
+      expect(isImageFile("style.css")).toBe(false);
+      expect(isImageFile("data.json")).toBe(false);
+      expect(isImageFile("README.md")).toBe(false);
+      expect(isImageFile("photo.txt")).toBe(false);
+      expect(isImageFile("no-extension")).toBe(false);
+    });
+  });
+
   describe("shouldDeleteFile", () => {
     it("should return true for empty file content", () => {
       expect(shouldDeleteFile({ name: "test.js", text: "" })).toBe(true);
@@ -33,6 +71,24 @@ describe("fileUtils", () => {
   });
 
   describe("prepareFilesForPrompt", () => {
+    it("should exclude image files and return them separately", () => {
+      const files: VizFiles = {
+        file1: { name: "script.js", text: "console.log('hello');" },
+        file2: { name: "photo.png", text: "binary image data" },
+        file3: { name: "icon.svg", text: "<svg>...</svg>" },
+        file4: { name: "style.css", text: "body { margin: 0; }" },
+      };
+
+      const result = prepareFilesForPrompt(files);
+      
+      expect(result.files).toHaveProperty("script.js");
+      expect(result.files).toHaveProperty("style.css");
+      expect(result.files).not.toHaveProperty("photo.png");
+      expect(result.files).not.toHaveProperty("icon.svg");
+      
+      expect(result.imageFiles).toEqual(["photo.png", "icon.svg"]);
+    });
+
     it("should truncate large files", () => {
       const files: VizFiles = {
         file1: {
@@ -42,8 +98,9 @@ describe("fileUtils", () => {
       };
 
       const result = prepareFilesForPrompt(files);
-      expect(result["large.js"]).toBeDefined();
-      expect(result["large.js"].split("\n").length).toBe(500); // Truncated to 500 lines
+      expect(result.files["large.js"]).toBeDefined();
+      expect(result.files["large.js"].split("\n").length).toBe(500); // Truncated to 500 lines
+      expect(result.imageFiles).toEqual([]);
     });
 
     it("should truncate CSV and JSON files more aggressively", () => {
@@ -60,8 +117,9 @@ describe("fileUtils", () => {
 
       const result = prepareFilesForPrompt(files);
 
-      expect(result["data.csv"].split("\n").length).toBe(50); // Truncated to 50 lines
-      expect(result["data.json"].split("\n").length).toBe(50); // Truncated to 50 lines
+      expect(result.files["data.csv"].split("\n").length).toBe(50); // Truncated to 50 lines
+      expect(result.files["data.json"].split("\n").length).toBe(50); // Truncated to 50 lines
+      expect(result.imageFiles).toEqual([]);
     });
 
     it("should truncate long lines", () => {
@@ -73,7 +131,32 @@ describe("fileUtils", () => {
       };
 
       const result = prepareFilesForPrompt(files);
-      expect(result["longline.js"].length).toBeLessThan(201); // Truncated to 200 chars
+      expect(result.files["longline.js"].length).toBeLessThan(201); // Truncated to 200 chars
+      expect(result.imageFiles).toEqual([]);
+    });
+
+    it("should handle files with no images", () => {
+      const files: VizFiles = {
+        file1: { name: "script.js", text: "console.log('hello');" },
+        file2: { name: "style.css", text: "body { margin: 0; }" },
+      };
+
+      const result = prepareFilesForPrompt(files);
+      
+      expect(Object.keys(result.files)).toHaveLength(2);
+      expect(result.imageFiles).toEqual([]);
+    });
+
+    it("should handle files with only images", () => {
+      const files: VizFiles = {
+        file1: { name: "photo.jpg", text: "binary data" },
+        file2: { name: "icon.png", text: "more binary data" },
+      };
+
+      const result = prepareFilesForPrompt(files);
+      
+      expect(Object.keys(result.files)).toHaveLength(0);
+      expect(result.imageFiles).toEqual(["photo.jpg", "icon.png"]);
     });
   });
 

@@ -70,11 +70,21 @@ export function assembleFullPrompt({
   filesContext,
   prompt,
   editFormat = "whole",
+  imageFiles = [],
 }: {
   filesContext: string;
   prompt: string;
   editFormat?: EditFormat;
+  imageFiles?: string[];
 }) {
   const FORMAT = FORMAT_INSTRUCTIONS[editFormat];
-  return [TASK(prompt), FILES(filesContext), FORMAT].join("\n\n");
+  
+  // Add image files list if there are any
+  let imageFilesSection = "";
+  if (imageFiles.length > 0) {
+    imageFilesSection = "\nImage files available:\n\n" + 
+      imageFiles.map(fileName => ` * \`${fileName}\``).join("\n");
+  }
+  
+  return [TASK(prompt), FILES(filesContext), FORMAT + imageFilesSection].join("\n\n");
 }
