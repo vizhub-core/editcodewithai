@@ -66,6 +66,45 @@ describe("prompt", () => {
       expect(result).toContain("unified diff format");
     });
 
+    it("should include image files list when provided", () => {
+      const prompt = "Update the code";
+      const filesContext = "**file.js**\n```js\nconsole.log('hello');\n```";
+      const imageFiles = ["photo.jpg", "icon.png"];
+
+      const result = assembleFullPrompt({
+        filesContext,
+        prompt,
+        imageFiles,
+      });
+
+      expect(result).toContain("Image files available:");
+      expect(result).toContain(" * `photo.jpg`");
+      expect(result).toContain(" * `icon.png`");
+    });
+
+    it("should not include image files section when no images", () => {
+      const prompt = "Update the code";
+      const filesContext = "**file.js**\n```js\nconsole.log('hello');\n```";
+
+      const result = assembleFullPrompt({ filesContext, prompt });
+
+      expect(result).not.toContain("Image files available:");
+    });
+
+    it("should not include image files section when empty array", () => {
+      const prompt = "Update the code";
+      const filesContext = "**file.js**\n```js\nconsole.log('hello');\n```";
+      const imageFiles: string[] = [];
+
+      const result = assembleFullPrompt({
+        filesContext,
+        prompt,
+        imageFiles,
+      });
+
+      expect(result).not.toContain("Image files available:");
+    });
+
     it("should maintain the correct order of sections", () => {
       const prompt = "Fix bugs";
       const filesContext = "**test.js**\n```js\nlet x = 1;\n```";
@@ -84,6 +123,23 @@ describe("prompt", () => {
 
       expect(taskIndex).toBeLessThan(filesIndex);
       expect(filesIndex).toBeLessThan(formatIndex);
+    });
+
+    it("should maintain the correct order with image files", () => {
+      const prompt = "Fix bugs";
+      const filesContext = "**test.js**\n```js\nlet x = 1;\n```";
+      const imageFiles = ["test.png"];
+
+      const result = assembleFullPrompt({
+        filesContext,
+        prompt,
+        imageFiles,
+      });
+
+      // Image files should be at the end
+      expect(result).toMatch(
+        /## Formatting Instructions[\s\S]*Image files available:/,
+      );
     });
   });
 

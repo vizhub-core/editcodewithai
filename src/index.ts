@@ -14,6 +14,7 @@ import {
   parseDiffFenced,
   parseUdiffs,
   applyUdiffs,
+  isImageFile,
 } from "./fileUtils";
 
 export type {
@@ -27,6 +28,7 @@ export {
   FORMAT_INSTRUCTIONS,
   mergeFileChanges,
   prepareFilesForPrompt,
+  isImageFile,
   parseDiffs,
   applyDiffs,
   parseDiffFenced,
@@ -54,11 +56,16 @@ export async function performAiEdit({
   editFormat = "whole",
 }: PerformAiEditParams): Promise<PerformAiEditResult> {
   // 1. Format the existing files into the "markdown code block" format
-  const preparedFiles = prepareFilesForPrompt(files);
-  const filesContext = formatMarkdownFiles(preparedFiles);
+  const preparedResult = prepareFilesForPrompt(files);
+  const filesContext = formatMarkdownFiles(preparedResult.files);
 
   // 2. Assemble the final prompt
-  const fullPrompt = assembleFullPrompt({ filesContext, prompt, editFormat });
+  const fullPrompt = assembleFullPrompt({
+    filesContext,
+    prompt,
+    editFormat,
+    imageFiles: preparedResult.imageFiles,
+  });
   debug && console.log("[performAiEdit] fullPrompt:", fullPrompt);
 
   // 3. Invoke the model via the provided LLM function

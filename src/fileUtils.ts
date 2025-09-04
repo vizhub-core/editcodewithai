@@ -11,12 +11,30 @@ export function shouldDeleteFile(file?: VizFile) {
 }
 
 /**
- * Processes files for the prompt by truncating large files
+ * Checks if a filename is an image file based on extension
  */
-export function prepareFilesForPrompt(files: VizFiles): FileCollection {
+export function isImageFile(fileName: string): boolean {
+  const imageExtensions = /\.(png|jpg|jpeg|gif|bmp|svg|webp)$/i;
+  return imageExtensions.test(fileName);
+}
+
+/**
+ * Processes files for the prompt by truncating large files and excluding images
+ */
+export function prepareFilesForPrompt(files: VizFiles): {
+  files: FileCollection;
+  imageFiles: string[];
+} {
   const result: FileCollection = {};
+  const imageFiles: string[] = [];
 
   Object.values(files).forEach((file) => {
+    // Check if it's an image file
+    if (isImageFile(file.name)) {
+      imageFiles.push(file.name);
+      return; // Skip processing image files
+    }
+
     // Example: truncate large files, etc.
     result[file.name] = file.text
       .split("\n")
@@ -28,7 +46,7 @@ export function prepareFilesForPrompt(files: VizFiles): FileCollection {
       .join("\n");
   });
 
-  return result;
+  return { files: result, imageFiles };
 }
 
 /**
